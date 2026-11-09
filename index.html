@@ -4233,7 +4233,7 @@ function confirmFormHTML(data = {}) {
       </div>
       <div class="modal-foot">
         <button type="button" class="btn btn-ghost" data-action="close-modal">取消</button>
-        <button type="button" class="btn btn-danger" data-action="confirm-generic">${icon('trash')} ${escapeHTML(data.confirmLabel || '确认删除')}</button>
+        <button type="button" class="btn btn-danger" data-action="confirm-generic">${icon(data.action === 'import-json-apply' ? 'upload' : 'trash')} ${escapeHTML(data.confirmLabel || '确认删除')}</button>
       </div>
     </div>`;
 }
