@@ -108,7 +108,8 @@ svg.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;s
 button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
 /* ---------- App shell ---------- */
-.app{display:flex;height:100vh;overflow:hidden;}
+/* 100svh 按「最小可视视口」计算，手机浏览器地址栏/工具栏展开时底部按钮也不会被遮挡 */
+.app{display:flex;height:100vh;height:100svh;overflow:hidden;}
 
 /* ---------- Sidebar ---------- */
 .sidebar{
@@ -212,6 +213,7 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .sidebar.collapsed .nav-label,.sidebar.collapsed .nav-badge{display:none;}
 .sidebar-foot{
   padding:12px 14px 16px;
+  padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));
   border-top:1px solid var(--border);
   flex-shrink:0;
 }
@@ -225,6 +227,7 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
   display:flex;
   flex-direction:column;
   height:100vh;
+  height:100svh;
   overflow:hidden;
   background:
     radial-gradient(1100px 460px at 88% -12%,color-mix(in srgb,var(--accent) 6%,transparent),transparent 62%),
@@ -244,6 +247,8 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .topbar-title{font-size:21px;font-weight:720;letter-spacing:-.03em;line-height:1.25;color:var(--text);}
 .topbar-sub{font-size:11.5px;color:var(--text-3);margin-top:3px;font-weight:450;}
 .topbar-actions{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+/* 手机端顶栏设置入口：侧边栏底部被浏览器工具栏遮挡时的备用入口 */
+.topbar .mobile-settings-btn{display:none;}
 .date-chip{
   display:flex;align-items:center;gap:7px;
   height:38px;padding:0 13px;
@@ -420,6 +425,23 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
   transition:width .28s cubic-bezier(.4,0,.2,1);
 }
 .task-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:5px;font-size:11px;color:var(--text-3);}
+/* 待办任务备注：最多展示 9 行（1.5 的 3 倍），完整内容在编辑任务弹窗中查看 */
+.task-note{
+  margin-top:7px;
+  padding:6px 9px;
+  border-left:2px solid color-mix(in srgb,var(--accent) 38%,var(--border));
+  border-radius:0 7px 7px 0;
+  background:var(--panel-2);
+  font-size:11px;
+  line-height:1.6;
+  color:var(--text-2);
+  white-space:pre-wrap;
+  word-break:break-word;
+  display:-webkit-box;
+  -webkit-line-clamp:9;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
 .due{display:inline-flex;align-items:center;gap:3px;font-variant-numeric:tabular-nums;color:var(--text-3);white-space:nowrap;}
 .due svg{width:11px;height:11px;}
 .due.is-today{color:var(--amber);}
@@ -674,15 +696,25 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .sub-title{font-size:11.5px;color:var(--text-2);line-height:1.45;flex:1;min-width:0;word-break:break-word;}
 .sub-row.done .sub-title{color:var(--text-3);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--text-3) 50%,transparent);}
 .sub-count{font-size:9px;color:var(--text-3);background:var(--panel-3);padding:0 5px;border-radius:4px;font-variant-numeric:tabular-nums;flex-shrink:0;}
+/* 子任务备注预览：单行省略，点击备注按钮查看与编辑 */
+.sub-note{font-size:10px;line-height:1.5;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 7px 3px 29px;cursor:pointer;}
+.sub-note:hover{color:var(--text-2);}
+.sub-row.done + .sub-note{text-decoration:none;opacity:.75;}
 .sub-actions{display:flex;align-items:center;gap:1px;opacity:0;transition:opacity .15s;flex-shrink:0;}
 .sub-row:hover .sub-actions,.sub-row:focus-within .sub-actions{opacity:1;}
 .icon-mini{width:20px;height:20px;border-radius:5px;display:grid;place-items:center;color:var(--text-3);}
 .icon-mini:hover{background:var(--panel-3);color:var(--text);}
 .icon-mini.danger:hover{color:var(--red);background:var(--red-soft);}
 .icon-mini.todo:hover{background:var(--accent-soft);color:var(--accent-text);}
+.icon-mini.note:hover{background:var(--amber-soft);color:var(--amber);}
+.icon-mini.note.has-note{color:var(--amber);}
 .icon-mini.todo.is-added,.icon-mini.todo.is-added:hover{background:transparent;color:var(--green);cursor:default;opacity:.85;}
 .icon-mini svg{width:12px;height:12px;}
-@media (hover:none),(pointer:coarse){.sub-actions{opacity:1;}}
+/* 触屏设备没有 hover，常显行内操作按钮 */
+@media (hover:none),(pointer:coarse){
+  .sub-actions,.kebab,.pmenu-btn,.week-add{opacity:1;}
+  .slot-plus{opacity:1;pointer-events:auto;}
+}
 .sub-input-row{padding:2px 7px 4px;}
 .sub-input-row input{
   width:100%;height:29px;
@@ -1140,6 +1172,39 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 .modal-warning strong{color:var(--red);}
 .form-tip{display:flex;align-items:flex-start;gap:7px;padding:9px 10px;border-radius:9px;background:var(--green-soft);border:1px solid color-mix(in srgb,var(--green) 20%,transparent);font-size:10.5px;color:var(--text-2);line-height:1.65;}
 .form-tip svg{width:14px;height:14px;color:var(--green);flex-shrink:0;margin-top:1px;}
+/* ---------- 备注输入与实时字数 ---------- */
+.note-field{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.note-field > label{font-size:10.5px;font-weight:600;color:var(--text-2);}
+.note-field > label span{color:var(--text-3);font-weight:450;margin-left:4px;}
+.note-area-wrap{position:relative;}
+.note-area{
+  width:100%;
+  min-height:104px;
+  max-height:280px;
+  padding:9px 10px 27px;
+  border-radius:9px;
+  border:1px solid var(--border);
+  background:var(--panel-2);
+  font-size:11.5px;
+  line-height:1.65;
+  color:var(--text);
+  resize:vertical;
+  transition:border-color .15s,box-shadow .15s,background .15s;
+}
+.note-area::placeholder{color:var(--text-3);}
+.note-area:focus{border-color:color-mix(in srgb,var(--accent) 50%,var(--border));box-shadow:0 0 0 3px var(--accent-soft);background:var(--panel);}
+.note-counter{
+  position:absolute;right:9px;bottom:7px;
+  font-size:9.5px;font-weight:600;
+  color:var(--text-3);
+  background:color-mix(in srgb,var(--panel-2) 88%,transparent);
+  padding:1px 5px;border-radius:5px;
+  font-variant-numeric:tabular-nums;
+  pointer-events:none;
+  transition:color .15s;
+}
+.note-counter.near-limit{color:var(--amber);}
+.note-counter.at-limit{color:var(--red);}
 
 /* ---------- Popovers / menus ---------- */
 .menu{
@@ -1261,15 +1326,23 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   .drag-list{max-height:260px;}
 }
 @media (max-width:760px){
-  .topbar{height:72px;padding:0 16px;}
+  .topbar{height:72px;padding:0 12px;gap:10px;}
   .topbar-title{font-size:18px;}
   .topbar-sub{display:none;}
-  .content{padding:0 16px 30px;}
-  .sidebar{width:70px;}
-  .sidebar .brand{height:72px;}
+  .topbar-actions{gap:7px;}
+  .topbar .mobile-settings-btn{display:grid;}
+  .content{padding:0 12px 28px;}
+  .sidebar{width:64px;}
+  .sidebar .brand{height:68px;}
   .logo{width:38px;height:38px;border-radius:12px;}
-  .sidebar .nav-main{padding:16px 10px;}
+  .sidebar .nav-main{padding:14px 8px;gap:4px;}
+  .sidebar-foot{padding-left:8px;padding-right:8px;}
   .nav-btn{height:42px;}
+  /* 窄屏下常显行内操作按钮，避免依赖 hover */
+  .kebab,.pmenu-btn,.sub-actions,.week-add{opacity:1;}
+  .kebab{width:32px;height:32px;}
+  .sub-actions{gap:0;}
+  .icon-mini{width:24px;height:24px;}
   .card-pad{padding:18px;}
   .overview-top{gap:14px;margin-bottom:14px;}
   .stats-row{grid-template-columns:1fr;gap:12px;}
@@ -1467,6 +1540,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 21.5a9.5 9.5 0 1 1 9.5-9.5c0 2.2-1.8 3.3-3.6 3.3h-1.7a2.2 2.2 0 0 0-1.7 3.6c.5.7.2 1.7-.5 2.2-.6.3-1.3.4-2 .4Z"/><circle cx="7.5" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="10" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="6.8" r="1" fill="currentColor" stroke="none"/><circle cx="17.8" cy="10.5" r="1" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-focus" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/><circle cx="12" cy="12" r="3.5"/></symbol>
   <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12.5h18"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M6 3.5h8.5L19 8v12.5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-16a1 1 0 0 1 1-1Z"/><path d="M14 3.5V8h4.5"/><path d="M8.5 12h7M8.5 15.5h7M8.5 19h4"/></symbol>
 </svg>
 
 <div class="app" id="app">
@@ -2972,7 +3046,7 @@ function projectShortLabel(project) {
 }
 function projectTagHTML(projectId) {
   const project = projectById(projectId);
-  if (!project) return `<span class="tag neutral">收件箱</span>`;
+  if (!project) return `<span class="tag neutral">未关联项目</span>`;
   return `<span class="tag" style="--pc:${colorOf(project)}">${escapeHTML(projectShortLabel(project))}</span>`;
 }
 function priorityHTML(priority) {
@@ -2995,6 +3069,7 @@ function nextMilestoneText(project) {
 }
 function taskRowHTML(task) {
   const due = dueMeta(task);
+  const note = String(task.note || '').trim();
   return `
     <div class="task-row" data-task-row="${task.id}">
       <div class="task-main">
@@ -3005,6 +3080,7 @@ function taskRowHTML(task) {
             ${projectTagHTML(task.projectId)}
             <span class="due ${due.overdue ? 'is-overdue' : (due.today ? 'is-today' : '')}">${icon('clock')}${due.text}</span>
           </div>
+          ${note ? `<div class="task-note">${escapeHTML(note)}</div>` : ''}
         </div>
       </div>
       <div class="task-actions">
@@ -3129,6 +3205,7 @@ function renderTopbar() {
         <button class="icon-btn" data-action="toggle-bell" title="今日提醒" aria-label="今日提醒">
           ${icon('bell')}${hasAlert ? '<span class="bell-dot"></span>' : ''}
         </button>
+        <button class="icon-btn mobile-settings-btn" data-action="open-settings" title="设置" aria-label="打开设置">${icon('settings')}</button>
         ${UI.bellOpen ? `
           <div class="bell-pop">
             <div class="pop-head">
@@ -3251,6 +3328,7 @@ function renderSubtree(nodes, projectId, depth) {
     const hasChildren = node.children && node.children.length;
     const addingHere = UI.addingSubtask && UI.addingSubtask.projectId === projectId && UI.addingSubtask.parentId === node.id;
     const inTodo = S.tasks.some(task => task.status === 'pending' && task.projectId === projectId && task.title.trim() === node.title.trim());
+    const note = String(node.note || '').trim();
     return `
       <div class="sub-node">
         <div class="sub-row ${node.done ? 'done' : ''}" style="padding-left:${7 + depth * 18}px">
@@ -3259,6 +3337,8 @@ function renderSubtree(nodes, projectId, depth) {
           <span class="sub-title">${escapeHTML(node.title)}</span>
           ${hasChildren ? `<span class="sub-count">${node.children.filter(child => child.done).length}/${node.children.length}</span>` : ''}
           <span class="sub-actions">
+            <button class="icon-mini note ${note ? 'has-note' : ''}" data-action="subtask-note" data-project="${projectId}" data-id="${node.id}"
+              title="${note ? '编辑备注' : '添加备注'}" aria-label="${note ? '编辑备注' : '添加备注'}：${escapeHTML(node.title)}">${icon('note')}</button>
             <button class="icon-mini" data-action="add-subtask" data-project="${projectId}" data-parent="${node.id}" title="添加子任务">${icon('plus')}</button>
             <button class="icon-mini todo ${inTodo ? 'is-added' : ''}" data-action="subtask-to-todo" data-project="${projectId}" data-id="${node.id}"
               title="${inTodo ? '已在待办中' : '一键添加到待办'}" aria-label="${inTodo ? '已在待办中' : '一键添加「' + escapeHTML(node.title) + '」到待办'}"
@@ -3266,6 +3346,8 @@ function renderSubtree(nodes, projectId, depth) {
             <button class="icon-mini danger" data-action="delete-subtask" data-project="${projectId}" data-id="${node.id}" title="删除该任务">${icon('trash')}</button>
           </span>
         </div>
+        ${note ? `<div class="sub-note" data-action="subtask-note" data-project="${projectId}" data-id="${node.id}"
+          style="padding-left:${29 + depth * 18}px" title="${escapeHTML(note)}">${escapeHTML(note)}</div>` : ''}
         ${addingHere ? renderSubtaskInput(projectId, node.id, depth + 1) : ''}
         ${hasChildren ? `<div class="subtree">${renderSubtree(node.children, projectId, depth + 1)}</div>` : ''}
       </div>`;
@@ -4027,7 +4109,7 @@ function renderSettings() {
           <strong>Workbench · 个人工作台</strong>
           <span>Local-first · 单文件应用 · 多端云同步</span>
         </div>
-        <span class="about-version">v1.4.0</span>
+        <span class="about-version">v1.5.1</span>
       </section>
     </div>`;
 }
@@ -4046,6 +4128,20 @@ function openModal(type, data = {}) {
 function closeModal() {
   UI.modal = null;
   $('#modal-root').innerHTML = '';
+}
+/* 点击弹窗外区域时先保存再关闭：任务编辑与子任务备注避免丢失已输入内容 */
+function closeModalWithSave() {
+  const modal = UI.modal;
+  if (!modal) return;
+  if (modal.type === 'subtask-note') {
+    const form = document.querySelector('[data-form="subtask-note"]');
+    if (form) { submitSubtaskNoteForm(form); return; }
+  }
+  if (modal.type === 'task') {
+    const form = document.querySelector('[data-form="task"]');
+    if (form) { submitTaskForm(form); return; }
+  }
+  closeModal();
 }
 
 function eventFormHTML(event) {
@@ -4102,7 +4198,8 @@ function eventFormHTML(event) {
 
 function taskFormHTML(task) {
   const due = new Date(task.dueAt);
-  const projectOptions = `<option value="">收件箱（未关联项目）</option>${S.projects.map(project =>
+  const note = String(task.note || '');
+  const projectOptions = `<option value="">未关联项目</option>${S.projects.map(project =>
     `<option value="${project.id}" ${task.projectId === project.id ? 'selected' : ''}>${escapeHTML(project.name)}</option>`).join('')}`;
   const priorityOptions = Object.entries(PRIORITIES).map(([key, meta]) =>
     `<option value="${key}" ${task.priority === key ? 'selected' : ''}>${meta.label}优先级</option>`).join('');
@@ -4133,10 +4230,40 @@ function taskFormHTML(task) {
           <input class="input" id="tk-time" name="time" type="time" step="300" value="${hm(due)}">
         </div>
       </div>
+      <div class="note-field">
+        <label for="tk-note">备注<span>（可选，最多 1500 字）</span></label>
+        <div class="note-area-wrap">
+          <textarea class="note-area" id="tk-note" name="note" data-note-input maxlength="1500"
+            placeholder="补充上下文、要点或验收标准…">${escapeHTML(note)}</textarea>
+          <span class="note-counter" data-note-counter>${note.length} / 1500</span>
+        </div>
+      </div>
       <div class="modal-foot">
         <button type="button" class="btn btn-danger-soft btn-sm left" data-action="delete-task" data-id="${task.id}">${icon('trash')} 删除任务</button>
         <button type="button" class="btn btn-ghost" data-action="close-modal">取消</button>
         <button type="submit" class="btn btn-primary">保存任务</button>
+      </div>
+    </form>`;
+}
+
+function subtaskNoteFormHTML(data = {}) {
+  const note = String(data.note || '');
+  return `
+    <form class="form-grid" data-form="subtask-note" novalidate>
+      <input type="hidden" name="projectId" value="${escapeHTML(data.projectId || '')}">
+      <input type="hidden" name="nodeId" value="${escapeHTML(data.nodeId || '')}">
+      <div class="note-field">
+        <label for="sn-note">备注<span>（可选，最多 1500 字）</span></label>
+        <div class="note-area-wrap">
+          <textarea class="note-area" id="sn-note" name="note" data-note-input maxlength="1500"
+            placeholder="补充这个子任务的背景、细节或注意事项…">${escapeHTML(note)}</textarea>
+          <span class="note-counter" data-note-counter>${note.length} / 1500</span>
+        </div>
+      </div>
+      <div class="modal-foot">
+        ${note ? `<button type="button" class="btn btn-danger-soft btn-sm left" data-action="clear-subtask-note">${icon('trash')} 清空备注</button>` : ''}
+        <button type="button" class="btn btn-ghost" data-action="close-modal">取消</button>
+        <button type="submit" class="btn btn-primary">保存备注</button>
       </div>
     </form>`;
 }
@@ -4257,6 +4384,10 @@ function renderModal() {
     title = isEdit ? '编辑项目' : '新建项目';
     desc = isEdit ? '修改项目基础信息，或将其从工作台中删除。' : '先定一个清晰的结果，再拆解成可执行的子任务。';
     body = projectFormHTML(data);
+  } else if (type === 'subtask-note') {
+    title = '子任务备注';
+    desc = `为「${escapeHTML(data.title || '')}」补充说明，最多 1500 字。`;
+    body = subtaskNoteFormHTML(data);
   } else if (type === 'clear') {
     title = '清空本地数据？';
     desc = '这是最后一步确认。';
@@ -4281,6 +4412,8 @@ function renderModal() {
     </div>`;
   const focusTarget = root.querySelector('.modal input:not([type="hidden"]), .modal textarea, .modal select');
   if (focusTarget) setTimeout(() => focusTarget.focus(), 40);
+  const noteArea = root.querySelector('[data-note-input]');
+  if (noteArea) updateNoteCounter(noteArea);
 }
 
 /* =========================================================
@@ -4536,7 +4669,7 @@ function applyImportedState() {
 }
 
 function exportCSV() {
-  const headers = ['任务 ID', '任务标题', '所属项目', '状态', '优先级', '截止时间', '创建时间', '完成时间', '预计耗时（分钟）', '已排期'];
+  const headers = ['任务 ID', '任务标题', '备注', '所属项目', '状态', '优先级', '截止时间', '创建时间', '完成时间', '预计耗时（分钟）', '已排期'];
   const rows = [...S.tasks]
     .sort((a, b) => new Date(a.dueAt) - new Date(b.dueAt))
     .map(task => {
@@ -4545,6 +4678,7 @@ function exportCSV() {
       return [
         task.id,
         task.title,
+        task.note || '',
         project ? project.name : '',
         task.status === 'completed' ? '已完成' : '待办',
         `${PRIORITIES[task.priority]?.label || '中'}优先级`,
@@ -4679,7 +4813,8 @@ function addSubtaskToTodo(projectId, nodeId) {
     dueAt: due.toISOString(),
     createdAt: now.toISOString(),
     completedAt: null,
-    estMinutes: 30
+    estMinutes: 30,
+    note: String(node.note || '').slice(0, 1500)
   });
   persist();
   renderAll();
@@ -4699,7 +4834,7 @@ function addSubtaskFromInput(input) {
   const parentId = input.dataset.parent;
   const parent = parentId ? findNode(project.subtasks, parentId) : null;
   if (parentId && !parent) return;
-  const node = { id: uid('s'), title, done: false, children: [] };
+  const node = { id: uid('s'), title, done: false, note: '', children: [] };
   if (parent) {
     parent.children = parent.children || [];
     parent.children.push(node);
@@ -4898,6 +5033,9 @@ function handleAction(action, element) {
     case 'toggle-sidebar':
       toggleSidebar();
       break;
+    case 'open-settings':
+      navigate('settings');
+      break;
     case 'complete-task':
       completeTask(id);
       break;
@@ -4976,6 +5114,12 @@ function handleAction(action, element) {
     case 'add-subtask': {
       const project = projectById(element.dataset.project);
       if (!project) break;
+      /* 切换输入框前，先保存当前未提交的子任务内容 */
+      const editing = document.querySelector('.sub-input');
+      if (editing && String(editing.value || '').trim() && UI.addingSubtask) {
+        UI.addingSubtask = null;
+        addSubtaskFromInput(editing);
+      }
       UI.expanded.add(project.id);
       UI.addingSubtask = { projectId: project.id, parentId: element.dataset.parent || '' };
       renderAll();
@@ -5004,6 +5148,29 @@ function handleAction(action, element) {
     case 'note-format':
       applyNoteFormat(element.dataset.format, element.dataset.project);
       break;
+    case 'subtask-note': {
+      const project = projectById(element.dataset.project);
+      const node = project ? findNode(project.subtasks, id) : null;
+      if (!project || !node) break;
+      closeMenu();
+      closeBell();
+      openModal('subtask-note', {
+        projectId: project.id,
+        nodeId: node.id,
+        title: node.title,
+        note: node.note || ''
+      });
+      break;
+    }
+    case 'clear-subtask-note': {
+      const area = document.querySelector('#sn-note');
+      if (area) {
+        area.value = '';
+        updateNoteCounter(area);
+        area.focus();
+      }
+      break;
+    }
     case 'open-event': {
       const event = S.events.find(item => item.id === id);
       if (event) {
@@ -5116,7 +5283,8 @@ function submitQuickAdd(form) {
     dueAt: due.toISOString(),
     createdAt: now.toISOString(),
     completedAt: null,
-    estMinutes: 30
+    estMinutes: 30,
+    note: ''
   });
   persist();
   UI.focusAfterRender = '#quick-add-input';
@@ -5185,10 +5353,34 @@ function submitTaskForm(form) {
   task.projectId = S.projects.some(project => project.id === projectId) ? projectId : '';
   task.priority = PRIORITIES[priority] ? priority : 'medium';
   task.dueAt = due.toISOString();
+  task.note = String(data.get('note') || '').slice(0, 1500);
   closeModal();
   persist();
   renderAll();
   toast('任务已更新');
+}
+
+function submitSubtaskNoteForm(form) {
+  const data = new FormData(form);
+  const project = projectById(String(data.get('projectId') || ''));
+  const node = project ? findNode(project.subtasks, String(data.get('nodeId') || '')) : null;
+  if (!project || !node) { closeModal(); return; }
+  node.note = String(data.get('note') || '').slice(0, 1500);
+  closeModal();
+  persist();
+  renderAll();
+  toast(node.note ? '子任务备注已保存' : '子任务备注已清空', node.note ? 'success' : 'info');
+}
+
+function updateNoteCounter(input) {
+  if (!input) return;
+  const wrap = input.closest('.note-area-wrap');
+  const counter = wrap ? wrap.querySelector('[data-note-counter]') : null;
+  if (!counter) return;
+  const length = String(input.value || '').length;
+  counter.textContent = `${length} / 1500`;
+  counter.classList.toggle('near-limit', length >= 1300 && length < 1500);
+  counter.classList.toggle('at-limit', length >= 1500);
 }
 
 function submitProjectForm(form) {
@@ -5268,6 +5460,7 @@ function onSubmit(event) {
   if (kind === 'event') submitEventForm(form);
   else if (kind === 'task') submitTaskForm(form);
   else if (kind === 'project') submitProjectForm(form);
+  else if (kind === 'subtask-note') submitSubtaskNoteForm(form);
 }
 
 /* =========================================================
@@ -5498,7 +5691,7 @@ function onClick(event) {
   }
 
   if (UI.modal && target.matches('[data-modal-backdrop]')) {
-    closeModal();
+    closeModalWithSave();
     return;
   }
 
@@ -5539,8 +5732,14 @@ function onFocusOut(event) {
     if (UI.addingSubtask !== pending) return;
     const active = document.activeElement;
     if (active && active.closest && active.closest('.sub-input')) return;
+    const value = String(input.value || '').trim();
     UI.addingSubtask = null;
-    if (document.body.contains(input) && UI.activeTab === 'projects') renderAll();
+    if (value) {
+      /* 失焦默认保存，避免已输入的子任务内容丢失 */
+      addSubtaskFromInput(input);
+    } else if (document.body.contains(input) && UI.activeTab === 'projects') {
+      renderAll();
+    }
   }, 0);
 }
 
@@ -5566,7 +5765,7 @@ function onKeyDown(event) {
   }
 
   if (event.key === 'Escape') {
-    if (UI.modal) { closeModal(); return; }
+    if (UI.modal) { closeModalWithSave(); return; }
     if (UI.menu) { closeMenu(); return; }
     if (UI.bellOpen) { UI.bellOpen = false; renderTopbar(); return; }
     if (UI.addingSubtask) { UI.addingSubtask = null; renderAll(); return; }
@@ -5592,6 +5791,11 @@ function onKeyDown(event) {
 }
 
 function onInput(event) {
+  const noteInput = event.target.closest ? event.target.closest('[data-note-input]') : null;
+  if (noteInput) {
+    updateNoteCounter(noteInput);
+    return;
+  }
   const editor = event.target.closest ? event.target.closest('.notes-editor') : null;
   if (!editor) return;
   const project = projectById(editor.dataset.notesProject);
@@ -5640,6 +5844,7 @@ function normalizeState(raw) {
     id: node && node.id ? node.id : uid('s'),
     title: String(node && node.title || ''),
     done: !!(node && node.done),
+    note: String(node && node.note || '').slice(0, 1500),
     children: Array.isArray(node && node.children) ? node.children.map(normalizeNode) : []
   });
   const state = {
@@ -5654,7 +5859,8 @@ function normalizeState(raw) {
         dueAt: task.dueAt || nowISO,
         createdAt: task.createdAt || nowISO,
         completedAt: task.status === 'completed' ? (task.completedAt || task.dueAt || nowISO) : null,
-        estMinutes: Number(task.estMinutes) || 30
+        estMinutes: Number(task.estMinutes) || 30,
+        note: String(task.note || '').slice(0, 1500)
       })),
     projects: raw.projects
       .filter(project => project && project.id && project.name)
