@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Workbench 个人工作台 — Local-First 的极简任务与项目控制面板">
-<title>Workbench · 个人工作台</title>
+<title>工作台</title>
 <style>
 /* =========================================================
    Workbench · 个人工作台
@@ -148,7 +148,6 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .logo svg{width:23px;height:23px;stroke-width:1.9;}
 .brand-text{min-width:0;overflow:hidden;white-space:nowrap;transition:opacity .18s ease;}
 .brand-name{font-size:16.5px;font-weight:750;letter-spacing:-.025em;line-height:1.2;color:var(--text);}
-.brand-sub{font-size:9px;font-weight:650;letter-spacing:.18em;text-transform:uppercase;color:var(--text-3);margin-top:4px;}
 .sidebar.collapsed .brand-text{opacity:0;width:0;}
 .sidebar-toggle{
   position:absolute;right:-14px;top:96px;z-index:40;
@@ -947,7 +946,7 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .side-tip svg{width:12px;height:12px;margin-top:1px;flex-shrink:0;color:var(--amber);}
 
 /* ---------- Data analysis ---------- */
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px;}
+.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:18px;}
 .stat-card{padding:20px 21px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
 .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
 .stat-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
@@ -1227,8 +1226,14 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 .pop-head{display:flex;align-items:center;justify-content:space-between;padding:7px 9px 8px;}
 .pop-title{font-size:12px;font-weight:680;}
 .pop-sub{font-size:9px;color:var(--text-3);}
-.pop-item{display:flex;gap:8px;align-items:flex-start;width:100%;padding:8px 9px;border-radius:8px;text-align:left;transition:.13s;}
+.pop-item{display:flex;align-items:flex-start;width:100%;border-radius:8px;transition:.13s;}
 .pop-item:hover{background:var(--panel-2);}
+.pop-main{display:flex;gap:8px;align-items:flex-start;flex:1;min-width:0;padding:8px 4px 8px 9px;text-align:left;}
+.pop-del{width:26px;height:26px;margin:5px 5px 0 0;border-radius:6px;display:grid;place-items:center;color:var(--text-3);opacity:.55;transition:.13s;flex-shrink:0;}
+.pop-del svg{width:12px;height:12px;}
+.pop-del:hover{background:var(--red-soft);color:var(--red);}
+.pop-item:hover .pop-del,.pop-del:focus-visible{opacity:1;}
+@media (hover:none),(pointer:coarse){.pop-del{opacity:1;}}
 .pop-dot{width:6px;height:6px;border-radius:50%;background:var(--pc,var(--accent));margin-top:5px;flex-shrink:0;}
 .pop-item .t{font-size:10.5px;font-weight:550;color:var(--text);line-height:1.45;}
 .pop-item .s{font-size:9px;color:var(--text-3);margin-top:1px;display:flex;align-items:center;gap:4px;}
@@ -1293,7 +1298,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   .completed-card{min-height:auto;}
   .completed-list{max-height:210px;}
   .stats-row{grid-template-columns:1fr 1fr;}
-  .stat-card:last-child{grid-column:span 2;}
   .project-detail{grid-template-columns:1fr;}
   .prow{grid-template-columns:52px minmax(170px,1.5fr) minmax(130px,.9fr) 104px 30px 22px;}
   .date-chip{display:none;}
@@ -1332,7 +1336,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   .card-pad{padding:18px;}
   .overview-top{gap:14px;margin-bottom:14px;}
   .stats-row{grid-template-columns:1fr;gap:12px;}
-  .stat-card:last-child{grid-column:auto;}
   .view-title{font-size:20px;}
   .prow{display:flex;flex-wrap:wrap;gap:8px 12px;padding:13px 14px;}
   .prow .prio{width:40px;}
@@ -1353,6 +1356,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   .schedule-side{grid-template-columns:1fr;}
   .theme-grid{grid-template-columns:1fr;padding:0 17px 17px;}
   .settings-row{padding:14px 17px;flex-wrap:wrap;}
+  .settings-actions{flex-shrink:1;width:100%;justify-content:flex-start;}
   .settings-head{padding:17px 17px 11px;}
   .kbd-row{padding:10px 17px;}
   .settings-about{padding:15px 17px;}
@@ -1361,7 +1365,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   .modal-head{padding:18px 18px 0;}
   .toasts{right:14px;left:14px;bottom:14px;align-items:stretch;}
   .toast{max-width:none;}
-  .bell-pop{width:290px;right:-46px;}
+  .bell-pop{width:min(290px,calc(100vw - 32px));right:0;}
   .week-grid{grid-template-columns:repeat(7,108px);}
 }
 /* ---------- 登录 / 注册 ---------- */
@@ -3093,8 +3097,7 @@ function renderSidebar() {
     <div class="brand">
       <div class="logo">${icon('layers')}</div>
       <div class="brand-text">
-        <div class="brand-name">Workbench</div>
-        <div class="brand-sub">Local-first</div>
+        <div class="brand-name">工作台</div>
       </div>
     </div>
     <button class="sidebar-toggle" data-action="toggle-sidebar" title="折叠 / 展开侧边栏（Ctrl/⌘ + B）" aria-label="折叠或展开侧边栏">
@@ -3153,10 +3156,26 @@ function topbarCopy() {
   return { title: '系统设置', sub: '账户同步、外观与数据管理' };
 }
 
+/* 今日提醒中被删除的条目：按天记录，第二天自动恢复提醒 */
+function dismissedAlertIds() {
+  const dismissed = S.meta && S.meta.alertDismissed;
+  if (!dismissed || dismissed.date !== todayISO() || !Array.isArray(dismissed.ids)) return [];
+  return dismissed.ids;
+}
+function dismissAlert(id) {
+  if (!id) return;
+  const ids = dismissedAlertIds().filter(item => item !== id);
+  ids.push(id);
+  S.meta.alertDismissed = { date: todayISO(), ids };
+}
+
 function renderTopbar() {
   const copy = topbarCopy();
-  const todayEventsList = upcomingTodayEvents().slice(0, 4);
-  const overdueTasks = pendingTasksSorted().filter(t => new Date(t.dueAt) < new Date()).slice(0, 3);
+  const dismissed = new Set(dismissedAlertIds());
+  const todayEventsList = upcomingTodayEvents().filter(event => !dismissed.has(event.id)).slice(0, 4);
+  const overdueTasks = pendingTasksSorted()
+    .filter(task => new Date(task.dueAt) < new Date() && !dismissed.has(task.id))
+    .slice(0, 3);
   const hasAlert = !!(S.settings.notifications && (todayEventsList.length || overdueTasks.length));
   $('#topbar').innerHTML = `
     <div style="min-width:0">
@@ -3184,22 +3203,28 @@ function renderTopbar() {
               (todayEventsList.length || overdueTasks.length) ? `
                 ${todayEventsList.map(event => {
                   const type = EVENT_TYPES[event.type] || EVENT_TYPES.meeting;
-                  return `<button class="pop-item" data-action="open-event" data-id="${event.id}" style="--pc:${type.color}">
-                    <span class="pop-dot"></span>
-                    <span style="min-width:0">
-                      <span class="t" style="display:block">${escapeHTML(event.title)}</span>
-                      <span class="s" style="display:flex">${icon('clock')} ${event.start} – ${event.end} · ${type.label}</span>
-                    </span>
-                  </button>`;
+                  return `<div class="pop-item" style="--pc:${type.color}">
+                    <button class="pop-main" data-action="open-event" data-id="${event.id}" title="查看日程">
+                      <span class="pop-dot"></span>
+                      <span style="min-width:0">
+                        <span class="t" style="display:block">${escapeHTML(event.title)}</span>
+                        <span class="s" style="display:flex">${icon('clock')} ${event.start} – ${event.end} · ${type.label}</span>
+                      </span>
+                    </button>
+                    <button class="pop-del" data-action="dismiss-alert" data-id="${event.id}" title="删除该提醒" aria-label="删除提醒：${escapeHTML(event.title)}">${icon('x')}</button>
+                  </div>`;
                 }).join('')}
                 ${overdueTasks.map(task => `
-                  <button class="pop-item" data-action="edit-task" data-id="${task.id}" style="--pc:var(--red)">
-                    <span class="pop-dot"></span>
-                    <span style="min-width:0">
-                      <span class="t" style="display:block">${escapeHTML(task.title)}</span>
-                      <span class="s" style="display:flex">${icon('alert')} ${dueMeta(task).text}</span>
-                    </span>
-                  </button>`).join('')}
+                  <div class="pop-item" style="--pc:var(--red)">
+                    <button class="pop-main" data-action="edit-task" data-id="${task.id}" title="查看任务">
+                      <span class="pop-dot"></span>
+                      <span style="min-width:0">
+                        <span class="t" style="display:block">${escapeHTML(task.title)}</span>
+                        <span class="s" style="display:flex">${icon('alert')} ${dueMeta(task).text}</span>
+                      </span>
+                    </button>
+                    <button class="pop-del" data-action="dismiss-alert" data-id="${task.id}" title="删除该提醒" aria-label="删除提醒：${escapeHTML(task.title)}">${icon('x')}</button>
+                  </div>`).join('')}
               ` : `<div class="pop-empty">今天没有待提醒的安排，<br>享受一段不被打扰的时间。</div>`}
           </div>` : ''}
       </div>
@@ -3840,7 +3865,6 @@ function renderDonut(stats) {
 function renderDataAnalysis() {
   const stats = lastNDaysStats(30);
   const rate = stats.total ? clamp(Math.round(stats.onTime / stats.total * 100), 0, 100) : 0;
-  const focusHours = stats.focusMin / 60;
   const now = new Date();
   const sumRange = (fromAgo, toAgo) => {
     let sum = 0;
@@ -3889,14 +3913,6 @@ function renderDataAnalysis() {
           <span class="trend-chip ${rate >= 90 ? 'up' : 'down'}">${icon('trend')}${rate >= 90 ? '+' : ''}${rate - 90}pp</span>
           <span>对照 90% 目标</span>
         </div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-top">
-          <span class="stat-label">累计深度工作</span>
-          <span class="stat-ico" style="--sc:var(--violet);--sc-soft:var(--violet-soft)">${icon('zap')}</span>
-        </div>
-        <div class="stat-value">${focusHours.toFixed(1)}<small>小时</small></div>
-        <div class="stat-foot"><span>日均 ${(focusHours / 30).toFixed(1)} 小时 · 沉浸时间</span></div>
       </div>
     </div>
 
@@ -3993,12 +4009,14 @@ function renderSettings() {
         </div>
         <div class="settings-row">
           <div>
-            <h4>导入旧版数据</h4>
-            <p>从 1.3 或更早版本导出的 JSON 备份，可以导入到当前账号，并自动同步到其他设备。</p>
+            <h4>导入导出数据</h4>
+            <p>把当前工作台数据导出为 JSON 备份，也可以从 JSON 备份导入，并自动同步到其他设备。</p>
+            <div class="storage-meta"><i></i>当前数据约 ${storageKB.toFixed(1)} KB</div>
           </div>
           <div class="settings-actions">
             <button class="btn btn-ghost btn-sm" data-action="import-json">${icon('upload')} 导入 JSON</button>
             <input id="import-json-input" type="file" accept="application/json,.json" hidden>
+            <button class="btn btn-ghost btn-sm" data-action="export-json">${icon('download')} 导出 JSON</button>
           </div>
         </div>
       </section>
@@ -4029,33 +4047,6 @@ function renderSettings() {
 
       <section class="card settings-card">
         <div class="settings-head">
-          <h3>本地数据</h3>
-          <p>本机缓存保存在浏览器 IndexedDB 中，云端另有一份；以 file:// 打开时若浏览器限制，会自动降级到 localStorage。</p>
-        </div>
-        <div class="settings-row">
-          <div>
-            <h4>导出数据</h4>
-            <p>JSON 保留完整结构，CSV 适合在表格软件中查看任务。</p>
-            <div class="storage-meta"><i></i>当前数据约 ${storageKB.toFixed(1)} KB</div>
-          </div>
-          <div class="settings-actions">
-            <button class="btn btn-ghost btn-sm" data-action="export-json">${icon('download')} 导出 JSON</button>
-            <button class="btn btn-ghost btn-sm" data-action="export-csv">${icon('download')} 导出 CSV</button>
-          </div>
-        </div>
-        <div class="settings-row">
-          <div>
-            <h4>清空当前账号数据</h4>
-            <p>删除本机与云端的全部任务、项目、日程与统计数据，操作不可撤销。建议先导出 JSON 备份。</p>
-          </div>
-          <div class="settings-actions">
-            <button class="btn btn-danger-soft btn-sm" data-action="clear-data">${icon('trash')} 清空数据</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="card settings-card">
-        <div class="settings-head">
           <h3>快捷键</h3>
           <p>减少鼠标移动，让操作更顺手。</p>
         </div>
@@ -4073,7 +4064,7 @@ function renderSettings() {
           <strong>Workbench · 个人工作台</strong>
           <span>Local-first · 单文件应用 · 多端云同步</span>
         </div>
-        <span class="about-version">v1.5.3</span>
+        <span class="about-version">v1.5.6</span>
       </section>
     </div>`;
 }
@@ -4296,20 +4287,6 @@ function projectFormHTML(data = {}) {
     </form>`;
 }
 
-function clearFormHTML() {
-  return `
-    <div class="form-grid">
-      <div class="modal-warning">
-        ${icon('alert')}
-        <span>将永久删除 <strong>${S.tasks.length} 项任务</strong>、<strong>${S.projects.length} 个项目</strong>、<strong>${S.events.length} 条日程</strong>以及所有统计数据。<br>操作不可撤销，建议先导出 JSON 备份。</span>
-      </div>
-      <div class="modal-foot">
-        <button type="button" class="btn btn-ghost" data-action="close-modal">取消</button>
-        <button type="button" class="btn btn-danger" data-action="confirm-clear">${icon('trash')} 确认清空</button>
-      </div>
-    </div>`;
-}
-
 function confirmFormHTML(data = {}) {
   return `
     <div class="form-grid">
@@ -4347,10 +4324,6 @@ function renderModal() {
     title = '子任务备注';
     desc = `为「${escapeHTML(data.title || '')}」补充说明，最多 1500 字。`;
     body = subtaskNoteFormHTML(data);
-  } else if (type === 'clear') {
-    title = '清空本地数据？';
-    desc = '这是最后一步确认。';
-    body = clearFormHTML();
   } else if (type === 'confirm') {
     title = escapeHTML(data.title || '确认操作');
     desc = escapeHTML(data.desc || '请确认是否继续。');
@@ -4543,11 +4516,6 @@ function downloadFile(filename, content, mime) {
   }
 }
 
-function csvCell(value) {
-  const text = String(value ?? '');
-  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-}
-
 function fmtDateTime(value) {
   if (!value) return '';
   const d = new Date(value);
@@ -4625,32 +4593,6 @@ function applyImportedState() {
   persist();
   renderAll(true);
   toast('数据已导入，正在同步到云端');
-}
-
-function exportCSV() {
-  const headers = ['任务 ID', '任务标题', '备注', '所属项目', '状态', '优先级', '截止时间', '创建时间', '完成时间', '预计耗时（分钟）', '已排期'];
-  const rows = [...S.tasks]
-    .sort((a, b) => new Date(a.dueAt) - new Date(b.dueAt))
-    .map(task => {
-      const project = projectById(task.projectId);
-      const scheduled = scheduledEventForTask(task.id);
-      return [
-        task.id,
-        task.title,
-        task.note || '',
-        project ? project.name : '',
-        task.status === 'completed' ? '已完成' : '待办',
-        `${PRIORITIES[task.priority]?.label || '中'}优先级`,
-        fmtDateTime(task.dueAt),
-        fmtDateTime(task.createdAt),
-        fmtDateTime(task.completedAt),
-        task.estMinutes || '',
-        scheduled ? `${scheduled.date} ${scheduled.start}-${scheduled.end}` : ''
-      ];
-    });
-  const csv = '﻿' + [headers, ...rows].map(row => row.map(csvCell).join(',')).join('\r\n');
-  downloadFile(`workbench-tasks-${todayISO()}.csv`, csv, 'text/csv;charset=utf-8');
-  toast('CSV 任务清单已导出');
 }
 
 /* =========================================================
@@ -4873,24 +4815,6 @@ function deleteProjectNow(id) {
   persist();
   renderAll();
   toast(`项目已删除${linkedTaskCount ? `，${linkedTaskCount} 项任务已转为未分组` : ''}`, 'info');
-}
-
-function clearAllNow() {
-  const theme = S.settings.theme || 'system';
-  S = createEmptyState(theme);
-  UI.expanded.clear();
-  UI.addingSubtask = null;
-  UI.scheduleDate = todayISO();
-  UI.scheduleView = 'day';
-  UI.activeTab = 'overview';
-  UI.focusAfterRender = null;
-  UI.bellOpen = false;
-  closeMenu();
-  closeModal();
-  applyTheme();
-  persist();
-  renderAll(true);
-  toast('当前账号数据已清空，正在同步到云端', 'info');
 }
 
 function confirmGeneric() {
@@ -5181,24 +5105,19 @@ function handleAction(action, element) {
       UI.bellOpen = !UI.bellOpen;
       renderTopbar();
       break;
+    case 'dismiss-alert':
+      dismissAlert(id);
+      persist();
+      renderTopbar();
+      break;
     case 'close-modal':
       closeModal();
-      break;
-    case 'clear-data':
-      closeBell();
-      openModal('clear', {});
-      break;
-    case 'confirm-clear':
-      clearAllNow();
       break;
     case 'confirm-generic':
       confirmGeneric();
       break;
     case 'export-json':
       exportJSON();
-      break;
-    case 'export-csv':
-      exportCSV();
       break;
     case 'sync-now':
       closeBell();
@@ -5308,15 +5227,37 @@ function submitTaskForm(form) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { toast('请选择截止日期', 'error'); return; }
   const due = new Date(`${date}T${time || '18:00'}:00`);
   if (Number.isNaN(due.getTime())) { toast('截止时间格式不正确', 'error'); return; }
+  const oldProjectId = task.projectId || '';
+  const nextProjectId = S.projects.some(project => project.id === projectId) ? projectId : '';
   task.title = title;
-  task.projectId = S.projects.some(project => project.id === projectId) ? projectId : '';
+  task.projectId = nextProjectId;
   task.priority = PRIORITIES[priority] ? priority : 'medium';
   task.dueAt = due.toISOString();
   task.note = String(data.get('note') || '').slice(0, 1500);
+  /* 任务被移动到另一个具体项目时，一并加入该项目的一级子任务（同名则不重复添加） */
+  let movedProject = null;
+  if (nextProjectId && nextProjectId !== oldProjectId) {
+    const project = projectById(nextProjectId);
+    if (project) {
+      project.subtasks = project.subtasks || [];
+      const exists = project.subtasks.some(node => String(node.title || '').trim() === title);
+      if (!exists) {
+        project.subtasks.push({
+          id: uid('s'),
+          title,
+          done: task.status === 'completed',
+          note: task.note || '',
+          children: []
+        });
+        updateProjectProgress(project);
+        movedProject = project;
+      }
+    }
+  }
   closeModal();
   persist();
   renderAll();
-  toast('任务已更新');
+  toast(movedProject ? `任务已移动，并加入「${movedProject.name}」的一级子任务` : '任务已更新');
 }
 
 function submitSubtaskNoteForm(form) {
@@ -5866,7 +5807,13 @@ function normalizeState(raw) {
     meta: {
       createdAt: raw.meta?.createdAt || nowISO,
       savedAt: raw.meta?.savedAt || nowISO,
-      cleared: !!raw.meta?.cleared
+      cleared: !!raw.meta?.cleared,
+      alertDismissed: {
+        date: /^\d{4}-\d{2}-\d{2}$/.test(raw.meta?.alertDismissed?.date || '') ? raw.meta.alertDismissed.date : '',
+        ids: Array.isArray(raw.meta?.alertDismissed?.ids)
+          ? raw.meta.alertDismissed.ids.filter(id => typeof id === 'string').slice(0, 200)
+          : []
+      }
     }
   };
   state.projects.forEach(project => {
