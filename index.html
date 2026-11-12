@@ -523,7 +523,7 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
   pointer-events:none;
 }
 .project-mini:hover{transform:translateY(-2px);background:var(--panel);border-color:color-mix(in srgb,var(--pc) 30%,var(--border));box-shadow:var(--shadow-md);}
-.project-mini-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:15px;}
+.project-mini-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px;}
 .project-ident{display:flex;align-items:center;gap:10px;min-width:0;}
 .project-ico{
   width:34px;height:34px;border-radius:10px;
@@ -535,8 +535,7 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 }
 .project-ico svg{width:17px;height:17px;}
 .project-name{font-size:12.5px;font-weight:650;line-height:1.35;color:var(--text);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
-.project-sub{font-size:9.5px;color:var(--text-3);margin-top:2px;}
-.project-mini .more-ico{color:var(--text-3);display:grid;place-items:center;flex-shrink:0;margin-top:2px;}
+.project-mini .more-ico{color:var(--text-3);display:grid;place-items:center;flex-shrink:0;}
 .project-mini .more-ico svg{width:15px;height:15px;}
 .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:10px;color:var(--text-3);}
 .progress-top b{color:var(--text-2);font-weight:650;font-size:11px;font-variant-numeric:tabular-nums;}
@@ -597,7 +596,7 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .prow-wrap.open .prow{background:var(--panel-2);}
 .prow{
   display:grid;
-  grid-template-columns:58px minmax(210px,1.55fr) minmax(160px,.95fr) 118px 104px 30px 26px;
+  grid-template-columns:58px minmax(210px,1.55fr) minmax(160px,.95fr) 118px 30px 26px;
   gap:16px;
   align-items:center;
   padding:15px 20px;
@@ -633,18 +632,6 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .pdeadline svg{width:12px;height:12px;color:var(--text-3);}
 .pdeadline.late{color:var(--red);}
 .pdeadline.late svg{color:var(--red);}
-.pmembers{display:flex;align-items:center;}
-.avatar-sm{
-  width:25px;height:25px;border-radius:50%;
-  display:grid;place-items:center;
-  font-size:9.5px;font-weight:650;color:#fff;
-  border:2px solid var(--panel);
-  margin-left:-7px;
-  flex-shrink:0;
-  background:var(--av);
-}
-.avatars .avatar-sm:first-child,.pmembers .avatar-sm:first-child{margin-left:0;}
-.avatar-more{background:var(--panel-3);color:var(--text-3);font-size:8.5px;}
 .pchevron{display:grid;place-items:center;color:var(--text-3);transition:transform .25s;}
 .pchevron svg{width:16px;height:16px;}
 .prow-wrap.open .pchevron{transform:rotate(180deg);color:var(--text-2);}
@@ -1293,7 +1280,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 @media (max-width:1180px){
   .topbar{padding:0 26px;}
   .content{padding:2px 26px 36px;}
-  .prow{grid-template-columns:54px minmax(180px,1.5fr) minmax(140px,.9fr) 106px 92px 30px 22px;gap:13px;padding:14px 17px;}
+  .prow{grid-template-columns:54px minmax(180px,1.5fr) minmax(140px,.9fr) 106px 30px 22px;gap:13px;padding:14px 17px;}
   .project-mini{flex-basis:288px;}
 }
 @media (max-width:1080px){
@@ -1308,7 +1295,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   .stats-row{grid-template-columns:1fr 1fr;}
   .stat-card:last-child{grid-column:span 2;}
   .project-detail{grid-template-columns:1fr;}
-  .pmembers{display:none;}
   .prow{grid-template-columns:52px minmax(170px,1.5fr) minmax(130px,.9fr) 104px 30px 22px;}
   .date-chip{display:none;}
 }
@@ -1698,8 +1684,6 @@ const PROJECT_STATUS = {
 /* completed 为自动归类状态，不写入项目原始状态 */
 const BASE_STATUS_ORDER = ['ongoing', 'to-start', 'under-review'];
 const STATUS_ORDER = [...BASE_STATUS_ORDER, 'completed'];
-const MEMBER_COLORS = ['#6366f1', '#ec4899', '#14b8a6', '#f59e0b', '#8b5cf6', '#0ea5e9', '#f97316', '#64748b'];
-const USER_NAME = '林川';
 const STORAGE_KEY = 'workbench.local.v1';
 /* Supabase 配置：Publishable key 可以放在前端；绝不能换成 service_role / secret key */
 const SUPABASE_URL = 'https://lpjjslftvurlyxucppef.supabase.co';
@@ -1713,8 +1697,6 @@ const icon = (name, cls = '') =>
   `<svg class="icon ${cls}" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
 
 const colorOf = project => PROJECT_COLORS[project?.color]?.hex || '#64748b';
-const avatarColor = name => MEMBER_COLORS[hashString(String(name)) % MEMBER_COLORS.length];
-const initialOf = name => String(name || '?').trim().slice(0, 1).toUpperCase();
 
 /* =========================================================
    三、初始示例数据（与设计稿中的示例内容完全不同）
@@ -1741,7 +1723,6 @@ function createSeedState() {
       color: 'blue',
       startDate: dateAt(-46),
       endDate: dateAt(12),
-      members: ['林川', '苏禾', '周野'],
       dependsOn: 'p4',
       notes: '<p>本周重点是<strong>灰度节奏</strong>与支付链路稳定性。发布检查清单需在周四前冻结，灰度名单由增长团队提供。</p><ul><li>灰度节奏：5% → 20% → 50%</li><li>监控看板：错误率、支付成功率、首屏耗时</li></ul>',
       subtasks: [
@@ -1773,7 +1754,6 @@ function createSeedState() {
       color: 'violet',
       startDate: dateAt(-31),
       endDate: dateAt(18),
-      members: ['林川', '陈默'],
       dependsOn: 'p7',
       notes: '<p>二期交付聚焦<strong>指标口径一致性</strong>和筛选器体验。验收前需要与客户逐项确认口径，避免上线后返工。</p>',
       subtasks: [
@@ -1804,7 +1784,6 @@ function createSeedState() {
       color: 'emerald',
       startDate: dateAt(-62),
       endDate: dateAt(4),
-      members: ['苏禾', '顾言'],
       dependsOn: '',
       notes: '<p>文档站改版接近收尾，最后一项是 <strong>Button 示例校对</strong>。完成后同步发布 v2.4 变更日志。</p>',
       subtasks: [
@@ -1834,7 +1813,6 @@ function createSeedState() {
       color: 'amber',
       startDate: dateAt(5),
       endDate: dateAt(40),
-      members: ['周野', '林川'],
       dependsOn: '',
       notes: '<p>正式启动前需要完成<strong>流量镜像验证</strong>和回滚预案评审。迁移窗口暂定月底的周四深夜。</p>',
       subtasks: [
@@ -1854,7 +1832,6 @@ function createSeedState() {
       color: 'cyan',
       startDate: dateAt(-3),
       endDate: dateAt(26),
-      members: ['顾言', '陈默', '苏禾'],
       dependsOn: '',
       notes: '<p>已收集到 14 个候选议题，下一步需要确认讲师档期。分享频率暂定<strong>每两周一场</strong>。</p>',
       subtasks: [
@@ -1878,7 +1855,6 @@ function createSeedState() {
       color: 'pink',
       startDate: dateAt(-38),
       endDate: dateAt(2),
-      members: ['苏禾', '顾言'],
       dependsOn: '',
       notes: '<p>规范主体已完成，终审关注<strong>暗色模式映射</strong>与对比度。多语言排版适配待确认后再合并。</p>',
       subtasks: [
@@ -1906,7 +1882,6 @@ function createSeedState() {
       color: 'orange',
       startDate: dateAt(-21),
       endDate: dateAt(6),
-      members: ['周野', '陈默'],
       dependsOn: '',
       notes: '<p>首屏与长任务指标已对齐，当前只剩<strong>上报去重策略</strong>需要产品确认。校验脚本可随版本一起归档。</p>',
       subtasks: [
@@ -3001,15 +2976,6 @@ function greeting() {
   if (hour < 23) return '晚上好';
   return '夜深了';
 }
-function memberPill(name) {
-  return `<span class="avatar-sm" style="--av:${avatarColor(name)}" title="${escapeHTML(name)}">${escapeHTML(initialOf(name))}</span>`;
-}
-function membersHTML(members = []) {
-  const shown = members.slice(0, 3);
-  const rest = members.length - shown.length;
-  return `<div class="pmembers avatars">${shown.map(memberPill).join('')}${rest > 0 ? `<span class="avatar-sm avatar-more">+${rest}</span>` : ''}</div>`;
-}
-
 /* =========================================================
    七、持久化与主题
    ========================================================= */
@@ -3097,7 +3063,6 @@ function projectMiniHTML(project) {
           <span class="project-ico">${icon('folder')}</span>
           <span style="min-width:0">
             <span class="project-name" style="display:block">${escapeHTML(project.name)}</span>
-            <span class="project-sub" style="display:block">${PROJECT_STATUS[projectDisplayStatus(project)]?.label || ''} · ${project.members?.length || 0} 位协作人</span>
           </span>
         </span>
         <span class="more-ico">${icon('arrow-up-right')}</span>
@@ -3423,7 +3388,6 @@ function renderProjectRow(project) {
           <div class="progress-track"><div class="progress-fill" style="width:${progress}%;--pc:${colorOf(project)}"></div></div>
         </div>
         <div class="pdeadline ${late ? 'late' : ''}">${icon('calendar')}${late ? '已超期 · ' : ''}${monthDay(end)}</div>
-        ${membersHTML(project.members || [])}
         <span class="pmenu-wrap">
           <button class="pmenu-btn" data-action="project-menu" data-id="${project.id}"
             title="编辑或删除项目" aria-label="项目操作：编辑或删除 ${escapeHTML(project.name)}">${icon('more')}</button>
@@ -4109,7 +4073,7 @@ function renderSettings() {
           <strong>Workbench · 个人工作台</strong>
           <span>Local-first · 单文件应用 · 多端云同步</span>
         </div>
-        <span class="about-version">v1.5.1</span>
+        <span class="about-version">v1.5.3</span>
       </section>
     </div>`;
 }
@@ -4275,7 +4239,6 @@ function projectFormHTML(data = {}) {
   const color = data.color || 'blue';
   const startDate = data.startDate || todayISO();
   const endDate = data.endDate || dateISO(addDays(new Date(), 30));
-  const members = Array.isArray(data.members) && data.members.length ? data.members.join('，') : USER_NAME;
   const options = BASE_STATUS_ORDER.map(key => {
     const meta = PROJECT_STATUS[key];
     return `<option value="${key}" ${status === key ? 'selected' : ''}>${meta.label}</option>`;
@@ -4320,10 +4283,6 @@ function projectFormHTML(data = {}) {
           <label for="pj-end">截止日期</label>
           <input class="input" id="pj-end" name="endDate" type="date" value="${escapeHTML(endDate)}">
         </div>
-      </div>
-      <div class="field">
-        <label for="pj-members">协作成员</label>
-        <input class="input" id="pj-members" name="members" maxlength="80" value="${escapeHTML(members)}" placeholder="用逗号分隔，如：林川，苏禾">
       </div>
       <div class="field">
         <label>主题色</label>
@@ -5389,10 +5348,6 @@ function submitProjectForm(form) {
   const existing = id ? projectById(id) : null;
   const name = String(data.get('name') || '').trim();
   if (!name) { toast('请填写项目名称', 'error'); return; }
-  const members = [...new Set(String(data.get('members') || '')
-    .split(/[,，、;；]/)
-    .map(item => item.trim())
-    .filter(Boolean))];
   const status = String(data.get('status') || 'ongoing');
   const priority = String(data.get('priority') || 'medium');
   const color = String(data.get('color') || 'blue');
@@ -5409,8 +5364,7 @@ function submitProjectForm(form) {
     priority: PRIORITIES[priority] ? priority : 'medium',
     color: PROJECT_COLORS[color] ? color : 'blue',
     startDate,
-    endDate,
-    members: members.length ? members : [USER_NAME]
+    endDate
   };
   UI.activeTab = 'projects';
   if (existing) {
@@ -5873,7 +5827,6 @@ function normalizeState(raw) {
         color: PROJECT_COLORS[project.color] ? project.color : 'blue',
         startDate: project.startDate || todayISO(),
         endDate: project.endDate || dateISO(addDays(new Date(), 30)),
-        members: Array.isArray(project.members) && project.members.length ? project.members : [USER_NAME],
         dependsOn: project.dependsOn || '',
         notes: typeof project.notes === 'string' ? sanitizeNotes(project.notes) : '',
         subtasks: Array.isArray(project.subtasks) ? project.subtasks.map(normalizeNode) : []
