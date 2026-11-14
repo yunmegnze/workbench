@@ -659,6 +659,7 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .detail-label .hint{font-size:9.5px;font-weight:450;color:var(--text-3);}
 .subtree{display:flex;flex-direction:column;gap:1px;}
 .sub-node{display:flex;flex-direction:column;}
+.sub-node.dragging{opacity:.45;}
 .sub-row{
   display:flex;align-items:center;gap:7px;
   min-height:30px;
@@ -667,6 +668,25 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
   position:relative;
 }
 .sub-row:hover{background:var(--panel);}
+.sub-row.drop-before{box-shadow:inset 0 2px 0 var(--accent);}
+.sub-row.drop-after{box-shadow:inset 0 -2px 0 var(--accent);}
+/* 拖拽手柄：悬浮或聚焦时显示 */
+.sub-grip{width:13px;height:22px;border-radius:4px;display:grid;place-items:center;color:var(--text-3);opacity:0;cursor:grab;flex-shrink:0;transition:opacity .15s,background .15s;}
+.sub-grip svg{width:13px;height:13px;}
+.sub-row:hover .sub-grip,.sub-row:focus-within .sub-grip{opacity:.65;}
+.sub-grip:hover{opacity:1;background:var(--panel-3);color:var(--text-2);}
+.sub-grip:active{cursor:grabbing;}
+/* 子任务原位编辑输入框 */
+.sub-edit-input{
+  flex:1;min-width:0;height:24px;
+  border-radius:6px;
+  border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));
+  background:var(--panel);
+  padding:0 7px;
+  font-size:11.5px;
+  color:var(--text);
+  box-shadow:0 0 0 3px var(--accent-soft);
+}
 .sub-check{
   width:15px;height:15px;border-radius:4.5px;
   border:1.5px solid var(--border-strong);
@@ -700,6 +720,8 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 @media (hover:none),(pointer:coarse){
   .sub-actions,.kebab,.pmenu-btn,.week-add{opacity:1;}
   .slot-plus{opacity:1;pointer-events:auto;}
+  /* 触屏不支持 HTML5 拖拽，隐藏排序手柄 */
+  .sub-grip{display:none;}
 }
 .sub-input-row{padding:2px 7px 4px;}
 .sub-input-row input{
@@ -2198,6 +2220,7 @@ const UI = {
   expanded: new Set(),
   completedGroupOpen: false, // 「已完成」类目默认折叠
   addingSubtask: null,   // { projectId, parentId }
+  editingSubtask: null,  // { projectId, nodeId } 原位编辑子任务标题
   modal: null,           // { type, data }
   menu: null,            // { x, y, taskId }
   bellOpen: false,
@@ -3306,7 +3329,7 @@ function renderOverview() {
    ========================================================= */
 function renderSubtaskInput(projectId, parentId, depth) {
   return `
-    <div class="sub-input-row" style="padding-left:${7 + depth * 18}px">
+    <div class="sub-input-row" style="padding-left:${20 + depth * 18}px">
       <input class="sub-input" data-project="${projectId}" data-parent="${parentId}"
         maxlength="100" placeholder="输入子任务，Enter 保存，Esc 取消"
         aria-label="新子任务名称">
@@ -3317,27 +3340,32 @@ function renderSubtree(nodes, projectId, depth) {
   return (nodes || []).map(node => {
     const hasChildren = node.children && node.children.length;
     const addingHere = UI.addingSubtask && UI.addingSubtask.projectId === projectId && UI.addingSubtask.parentId === node.id;
+    const editingHere = UI.editingSubtask && UI.editingSubtask.projectId === projectId && UI.editingSubtask.nodeId === node.id;
     const inTodo = S.tasks.some(task => task.status === 'pending' && task.projectId === projectId && task.title.trim() === node.title.trim());
     const note = String(node.note || '').trim();
     return `
-      <div class="sub-node">
-        <div class="sub-row ${node.done ? 'done' : ''}" style="padding-left:${7 + depth * 18}px">
+      <div class="sub-node" data-node-id="${node.id}" data-project="${projectId}">
+        <div class="sub-row ${node.done ? 'done' : ''}" style="padding-left:${depth * 18}px">
+          <button class="sub-grip" draggable="true" data-drag-project="${projectId}" data-drag-id="${node.id}"
+            title="拖拽排序" aria-label="拖拽排序：${escapeHTML(node.title)}">${icon('grip')}</button>
           <button class="sub-check" data-action="toggle-subtask" data-project="${projectId}" data-id="${node.id}"
             aria-label="${node.done ? '取消完成' : '标记完成'}：${escapeHTML(node.title)}" title="${node.done ? '取消完成' : '标记完成'}">${icon('check')}</button>
-          <span class="sub-title">${escapeHTML(node.title)}</span>
+          ${editingHere
+            ? `<input class="sub-edit-input" data-project="${projectId}" data-id="${node.id}" value="${escapeHTML(node.title)}"
+                maxlength="100" aria-label="编辑子任务标题，Enter 保存，Esc 取消">`
+            : `<span class="sub-title">${escapeHTML(node.title)}</span>`}
           ${hasChildren ? `<span class="sub-count">${node.children.filter(child => child.done).length}/${node.children.length}</span>` : ''}
           <span class="sub-actions">
-            <button class="icon-mini note ${note ? 'has-note' : ''}" data-action="subtask-note" data-project="${projectId}" data-id="${node.id}"
-              title="${note ? '编辑备注' : '添加备注'}" aria-label="${note ? '编辑备注' : '添加备注'}：${escapeHTML(node.title)}">${icon('note')}</button>
-            <button class="icon-mini" data-action="add-subtask" data-project="${projectId}" data-parent="${node.id}" title="添加子任务">${icon('plus')}</button>
+            <button class="icon-mini" data-action="add-subtask" data-project="${projectId}" data-parent="${node.id}" title="添加子任务" aria-label="为「${escapeHTML(node.title)}」添加子任务">${icon('plus')}</button>
             <button class="icon-mini todo ${inTodo ? 'is-added' : ''}" data-action="subtask-to-todo" data-project="${projectId}" data-id="${node.id}"
               title="${inTodo ? '已在待办中' : '一键添加到待办'}" aria-label="${inTodo ? '已在待办中' : '一键添加「' + escapeHTML(node.title) + '」到待办'}"
               ${inTodo ? 'disabled' : ''}>${icon(inTodo ? 'check' : 'inbox')}</button>
-            <button class="icon-mini danger" data-action="delete-subtask" data-project="${projectId}" data-id="${node.id}" title="删除该任务">${icon('trash')}</button>
+            <button class="icon-mini ${note ? 'note has-note' : ''}" data-action="subtask-menu" data-project="${projectId}" data-id="${node.id}"
+              title="更多功能" aria-label="更多功能：${escapeHTML(node.title)}" aria-haspopup="menu">${icon('more')}</button>
           </span>
         </div>
         ${note ? `<div class="sub-note" data-action="subtask-note" data-project="${projectId}" data-id="${node.id}"
-          style="padding-left:${29 + depth * 18}px" title="${escapeHTML(note)}">${escapeHTML(note)}</div>` : ''}
+          style="padding-left:${42 + depth * 18}px" title="${escapeHTML(note)}">${escapeHTML(note)}</div>` : ''}
         ${addingHere ? renderSubtaskInput(projectId, node.id, depth + 1) : ''}
         ${hasChildren ? `<div class="subtree">${renderSubtree(node.children, projectId, depth + 1)}</div>` : ''}
       </div>`;
@@ -4064,7 +4092,7 @@ function renderSettings() {
           <strong>Workbench · 个人工作台</strong>
           <span>Local-first · 单文件应用 · 多端云同步</span>
         </div>
-        <span class="about-version">v1.5.6</span>
+        <span class="about-version">v1.6.0</span>
       </section>
     </div>`;
 }
@@ -4391,6 +4419,26 @@ function openProjectMenu(projectId, anchor) {
       <button class="menu-item danger" data-action="delete-project" data-id="${projectId}" role="menuitem">${icon('trash')} 删除项目</button>
     </div>`;
 }
+/* 子任务「更多功能」浮层：编辑 / 备注 / 删除 */
+function openSubtaskMenu(projectId, nodeId, anchor) {
+  const project = projectById(projectId);
+  const node = project ? findNode(project.subtasks, nodeId) : null;
+  if (!project || !node) return;
+  const rect = anchor.getBoundingClientRect();
+  const width = 132;
+  const height = 128;
+  let x = clamp(rect.right - width, 8, window.innerWidth - width - 8);
+  let y = rect.bottom + 6;
+  if (y + height > window.innerHeight - 8) y = rect.top - height - 6;
+  UI.menu = { x, y, projectId, nodeId };
+  $('#popover-root').innerHTML = `
+    <div class="menu" style="left:${x}px;top:${y}px;width:${width}px" role="menu">
+      <button class="menu-item" data-action="edit-subtask" data-project="${projectId}" data-id="${nodeId}" role="menuitem">${icon('pencil')} 编辑</button>
+      <button class="menu-item" data-action="subtask-note" data-project="${projectId}" data-id="${nodeId}" role="menuitem">${icon('note')} 备注</button>
+      <div class="menu-sep"></div>
+      <button class="menu-item danger" data-action="delete-subtask" data-project="${projectId}" data-id="${nodeId}" role="menuitem">${icon('trash')} 删除</button>
+    </div>`;
+}
 
 /* =========================================================
    十七、视图路由与整体渲染
@@ -4439,6 +4487,14 @@ function afterRender() {
     const input = document.querySelector(`.sub-input[data-project="${projectId}"][data-parent="${parentId}"]`);
     if (input) input.focus();
   }
+  if (UI.editingSubtask) {
+    const { projectId, nodeId } = UI.editingSubtask;
+    const input = document.querySelector(`.sub-edit-input[data-project="${projectId}"][data-id="${nodeId}"]`);
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  }
   if (UI.focusAfterRender) {
     const target = $(UI.focusAfterRender);
     if (target) target.focus();
@@ -4454,6 +4510,7 @@ function navigate(tab) {
   const changed = UI.activeTab !== tab;
   UI.activeTab = tab;
   UI.addingSubtask = null;
+  UI.editingSubtask = null;
   UI.focusAfterRender = null;
   renderAll(changed);
 }
@@ -4750,6 +4807,27 @@ function addSubtaskFromInput(input) {
   announceProjectStatusChange(beforeStatus, project);
 }
 
+/* 原位编辑子任务标题：空值或未修改时恢复原样 */
+function submitSubtaskEdit(input) {
+  if (!input) return;
+  const project = projectById(input.dataset.project);
+  const node = project ? findNode(project.subtasks, input.dataset.id) : null;
+  UI.editingSubtask = null;
+  if (!project || !node) {
+    renderAll();
+    return;
+  }
+  const value = String(input.value || '').trim();
+  if (!value || value === node.title) {
+    renderAll();
+    return;
+  }
+  node.title = value;
+  persist();
+  renderAll();
+  toast('子任务已更新');
+}
+
 function deleteSubtaskNow(projectId, nodeId) {
   const project = projectById(projectId);
   if (!project) return;
@@ -5011,10 +5089,25 @@ function handleAction(action, element) {
     case 'subtask-to-todo':
       addSubtaskToTodo(element.dataset.project, id);
       break;
+    case 'subtask-menu':
+      closeMenu();
+      openSubtaskMenu(element.dataset.project, id, element);
+      break;
+    case 'edit-subtask': {
+      const project = projectById(element.dataset.project);
+      const node = project ? findNode(project.subtasks, id) : null;
+      if (!project || !node) break;
+      closeMenu();
+      UI.addingSubtask = null;
+      UI.editingSubtask = { projectId: project.id, nodeId: node.id };
+      renderAll();
+      break;
+    }
     case 'delete-subtask': {
       const project = projectById(element.dataset.project);
       const node = project ? findNode(project.subtasks, id) : null;
       if (!project || !node) break;
+      closeMenu();
       const childCount = countNodes(node.children || []);
       openConfirm({
         title: '删除这个子任务？',
@@ -5425,7 +5518,43 @@ function updateNowLine() {
    二十二、拖拽排期
    ========================================================= */
 let dragPayload = null;
+let subtaskDrag = null;   // { projectId, nodeId } 子任务同级排序
 let suppressClicksUntil = 0;
+
+/* 在树中查找节点所在的同级数组与索引 */
+function findNodeContainer(nodes, id) {
+  for (let i = 0; i < (nodes || []).length; i++) {
+    if (nodes[i].id === id) return { list: nodes, index: i };
+    const found = findNodeContainer(nodes[i].children, id);
+    if (found) return found;
+  }
+  return null;
+}
+
+/* 同级拖拽排序：只允许在同一个父级列表内移动 */
+function reorderSubtask(project, dragId, targetId, after) {
+  if (!project || dragId === targetId) return;
+  const from = findNodeContainer(project.subtasks, dragId);
+  const to = findNodeContainer(project.subtasks, targetId);
+  if (!from || !to || from.list !== to.list) return;
+  const [node] = from.list.splice(from.index, 1);
+  let index = from.list.findIndex(item => item.id === targetId);
+  if (index < 0) {
+    from.list.splice(from.index, 0, node);
+    return;
+  }
+  if (after) index += 1;
+  from.list.splice(index, 0, node);
+  persist();
+  renderAll();
+}
+
+function clearSubDropMarks() {
+  $$('.sub-row.drop-before,.sub-row.drop-after').forEach(row => {
+    row.classList.remove('drop-before');
+    row.classList.remove('drop-after');
+  });
+}
 
 function slotFromPointer(event) {
   const slots = $('#day-slots');
@@ -5446,10 +5575,23 @@ function slotFromPointer(event) {
 function cleanupDrag() {
   $$('.dragging').forEach(element => element.classList.remove('dragging'));
   $$('.day-slot.drag-over').forEach(element => element.classList.remove('drag-over'));
+  clearSubDropMarks();
   dragPayload = null;
+  subtaskDrag = null;
 }
 
 function onDragStart(event) {
+  /* 子任务排序手柄优先 */
+  const grip = event.target.closest('.sub-grip');
+  if (grip) {
+    subtaskDrag = { projectId: grip.dataset.dragProject, nodeId: grip.dataset.dragId };
+    dragPayload = null;
+    event.dataTransfer.effectAllowed = 'move';
+    try { event.dataTransfer.setData('text/plain', `subtask:${subtaskDrag.nodeId}`); } catch (error) { /* noop */ }
+    const nodeElement = grip.closest('.sub-node');
+    setTimeout(() => { if (nodeElement) nodeElement.classList.add('dragging'); }, 0);
+    return;
+  }
   const taskElement = event.target.closest('.drag-task');
   if (taskElement) {
     dragPayload = { type: 'task', id: taskElement.dataset.dragTask };
@@ -5468,6 +5610,23 @@ function onDragStart(event) {
 }
 
 function onDragOver(event) {
+  if (subtaskDrag) {
+    clearSubDropMarks();
+    const row = event.target.closest('.sub-row');
+    if (!row) return;
+    const nodeElement = row.closest('.sub-node');
+    if (!nodeElement || nodeElement.dataset.project !== subtaskDrag.projectId) return;
+    if (nodeElement.dataset.nodeId === subtaskDrag.nodeId) return;
+    const project = projectById(subtaskDrag.projectId);
+    const from = project ? findNodeContainer(project.subtasks, subtaskDrag.nodeId) : null;
+    const to = project ? findNodeContainer(project.subtasks, nodeElement.dataset.nodeId) : null;
+    if (!from || !to || from.list !== to.list) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    const rect = row.getBoundingClientRect();
+    row.classList.add(event.clientY > rect.top + rect.height / 2 ? 'drop-after' : 'drop-before');
+    return;
+  }
   if (!dragPayload) return;
   const position = slotFromPointer(event);
   if (!position) return;
@@ -5484,6 +5643,21 @@ function onDragLeave(event) {
 }
 
 function onDrop(event) {
+  if (subtaskDrag) {
+    const row = event.target.closest('.sub-row');
+    const nodeElement = row ? row.closest('.sub-node') : null;
+    if (row && nodeElement && nodeElement.dataset.project === subtaskDrag.projectId) {
+      event.preventDefault();
+      const project = projectById(subtaskDrag.projectId);
+      if (project) {
+        const rect = row.getBoundingClientRect();
+        reorderSubtask(project, subtaskDrag.nodeId, nodeElement.dataset.nodeId, event.clientY > rect.top + rect.height / 2);
+      }
+    }
+    suppressClicksUntil = Date.now() + 420;
+    cleanupDrag();
+    return;
+  }
   if (!dragPayload) return;
   const position = slotFromPointer(event);
   if (!position) return;
@@ -5609,7 +5783,7 @@ function onClick(event) {
     return;
   }
 
-  if (UI.menu && !target.closest('.menu') && !target.closest('[data-action="task-menu"]') && !target.closest('[data-action="project-menu"]')) {
+  if (UI.menu && !target.closest('.menu') && !target.closest('[data-action="task-menu"]') && !target.closest('[data-action="project-menu"]') && !target.closest('[data-action="subtask-menu"]')) {
     closeMenu();
   }
   if (UI.bellOpen && !target.closest('.bell-wrap')) {
@@ -5619,6 +5793,22 @@ function onClick(event) {
 }
 
 function onFocusOut(event) {
+  /* 子任务原位编辑：失焦默认保存，避免已修改的标题丢失 */
+  const editInput = event.target.closest ? event.target.closest('.sub-edit-input') : null;
+  if (editInput) {
+    const pending = UI.editingSubtask;
+    setTimeout(() => {
+      if (!UI.editingSubtask || UI.editingSubtask !== pending) return;
+      const active = document.activeElement;
+      if (active && active.closest && active.closest('.sub-edit-input')) return;
+      if (document.body.contains(editInput)) submitSubtaskEdit(editInput);
+      else {
+        UI.editingSubtask = null;
+        renderAll();
+      }
+    }, 0);
+    return;
+  }
   const input = event.target.closest ? event.target.closest('.sub-input') : null;
   if (!input || !UI.addingSubtask) return;
   const pending = UI.addingSubtask;
@@ -5643,6 +5833,19 @@ function onKeyDown(event) {
   if ((event.ctrlKey || event.metaKey) && String(event.key).toLowerCase() === 'b') {
     event.preventDefault();
     toggleSidebar();
+    return;
+  }
+
+  const subEditInput = event.target.closest ? event.target.closest('.sub-edit-input') : null;
+  if (subEditInput) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      submitSubtaskEdit(subEditInput);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      UI.editingSubtask = null;
+      renderAll();
+    }
     return;
   }
 
