@@ -592,6 +592,8 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
   transition:width .28s cubic-bezier(.4,0,.2,1);
 }
 .task-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:5px;font-size:11px;color:var(--text-3);}
+/* 项目标签：完整显示项目名，空间不足时换行而不是截断省略 */
+.task-meta .tag,.drag-meta .tag{max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.45;text-align:left;}
 /* 待办任务备注：最多展示 9 行（1.5 的 3 倍），完整内容在编辑任务弹窗中查看 */
 .task-note{
   margin-top:7px;
@@ -3236,7 +3238,8 @@ function projectShortLabel(project) {
 function projectTagHTML(projectId) {
   const project = projectById(projectId);
   if (!project) return `<span class="tag neutral">未关联项目</span>`;
-  return `<span class="tag" style="--pc:${colorOf(project)}">${escapeHTML(projectShortLabel(project))}</span>`;
+  /* 待办与排期列表展示完整项目名，窄屏可换行，不再截断为 7 个字 */
+  return `<span class="tag" style="--pc:${colorOf(project)}" title="${escapeHTML(project.name)}">${escapeHTML(project.name)}</span>`;
 }
 function priorityHTML(priority) {
   const meta = PRIORITIES[priority] || PRIORITIES.medium;
@@ -4359,7 +4362,7 @@ function renderSettings() {
           <strong>Workbench · 个人工作台</strong>
           <span>Local-first · 单文件应用 · 多端云同步</span>
         </div>
-        <span class="about-version">v1.5.8</span>
+        <span class="about-version">v1.6.1</span>
       </section>
     </div>`;
 }
