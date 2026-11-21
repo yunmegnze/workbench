@@ -2362,10 +2362,17 @@ async function loadCloudState({ cached, usedGuest }) {
       Cloud.version = Number(row.version) || 0;
       const remote = normalizeState(row.data);
       if (remote) {
+        const localSavedAt = Date.parse(S?.meta?.savedAt || '') || 0;
+        const remoteSavedAt = Date.parse(remote.meta?.savedAt || '') || 0;
         if (Cloud.dirty && cached) {
           /* 本机有未上传的修改，先保留本机，随后自动上传 */
           await Store.save(S);
           scheduleCloudSync(500);
+        } else if (usedGuest && localSavedAt > remoteSavedAt) {
+          /* 首次登录且本机数据更新：保留本机并覆盖云端，避免旧云端数据冲掉本地进度 */
+          await Store.save(S);
+          await cloudSync();
+          toast('本机数据较新，已同步覆盖云端', 'info');
         } else {
           S = remote;
           await Store.save(S);
