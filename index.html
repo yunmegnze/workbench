@@ -2697,7 +2697,6 @@ const UI = {
   justExpandedProjectId: null,
   taskFilter: 'all',
   quickPriority: 'medium',
-  quickProjectId: '',
   quickDueMode: 'tomorrow',
   searchQuery: ''
 };
@@ -3174,11 +3173,6 @@ function renderOverview() {
         <span class="hero-pill-ico">${icon('plus')}</span>
         <input id="quick-add-input" name="title" maxlength="120" placeholder="接下来要做什么？回车即可创建一条任务" aria-label="快速新建任务">
         <div class="hero-pill-controls">
-          <select id="quick-project-select" class="hero-meta-select" title="选择关联项目" aria-label="关联项目">
-            <option value="" ${!UI.quickProjectId ? 'selected' : ''}>未关联</option>
-            ${S.projects.filter(p => !projectIsComplete(p)).map(p =>
-              `<option value="${p.id}" ${UI.quickProjectId === p.id ? 'selected' : ''}>${escapeHTML(p.name)}</option>`).join('')}
-          </select>
           <select id="quick-due-select" class="hero-meta-select" title="选择默认截止时间" aria-label="截止时间">
             <option value="tomorrow" ${UI.quickDueMode === 'tomorrow' ? 'selected' : ''}>明天 ${now.getHours() >= 18 ? '20:00' : '18:00'}</option>
             <option value="today" ${UI.quickDueMode === 'today' ? 'selected' : ''}>今天 ${now.getHours() >= 20 ? '23:00' : (now.getHours() >= 18 ? '20:00' : '18:00')}</option>
@@ -5362,18 +5356,14 @@ function submitQuickAdd(form) {
     return;
   }
   const now = new Date();
-  const projectSelect = form.querySelector('#quick-project-select');
   const dueSelect = form.querySelector('#quick-due-select');
-  const chosenProjectId = projectSelect ? projectSelect.value : UI.quickProjectId;
   const chosenDueMode = dueSelect ? dueSelect.value : UI.quickDueMode;
-  const validProjectId = S.projects.some(p => p.id === chosenProjectId) ? chosenProjectId : '';
-  UI.quickProjectId = validProjectId;
   UI.quickDueMode = ['tomorrow', 'today', 'dayAfter', 'week'].includes(chosenDueMode) ? chosenDueMode : 'tomorrow';
   const due = quickTaskDueAt(UI.quickDueMode, now);
   S.tasks.push({
     id: uid('t'),
     title,
-    projectId: validProjectId,
+    projectId: '',
     priority: PRIORITIES[UI.quickPriority] ? UI.quickPriority : 'medium',
     status: 'pending',
     dueAt: due.toISOString(),
@@ -6057,10 +6047,6 @@ function onInput(event) {
 }
 
 function onChange(event) {
-  if (event.target && event.target.id === 'quick-project-select') {
-    UI.quickProjectId = event.target.value || '';
-    return;
-  }
   if (event.target && event.target.id === 'quick-due-select') {
     UI.quickDueMode = event.target.value || 'tomorrow';
     return;
