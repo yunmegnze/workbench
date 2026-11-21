@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
@@ -405,7 +405,7 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 
 /* ---------- Overview ---------- */
 .hero-stage{
-  max-width:680px;
+  max-width:760px;
   margin:4px auto 26px;
   text-align:center;
 }
@@ -452,6 +452,29 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .hero-prio-btn.high{background:var(--red-soft);color:var(--red);border-color:transparent;}
 .hero-prio-btn.medium{background:var(--amber-soft);color:var(--amber);border-color:transparent;}
 .hero-prio-btn.low{background:var(--panel-2);color:var(--text-3);}
+.hero-pill-controls{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.hero-meta-select{
+  height:32px;
+  padding:0 22px 0 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--panel-2);
+  color:var(--text-2);
+  font-size:11px;
+  font-weight:550;
+  cursor:pointer;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9aad' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 7px center;
+  max-width:124px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.hero-meta-select:hover{background-color:var(--panel-3);color:var(--text);}
+.hero-meta-select:focus{border-color:color-mix(in srgb,var(--accent) 45%,var(--border));}
 .hero-submit-btn{
   width:38px;height:38px;border-radius:50%;
   display:grid;place-items:center;flex-shrink:0;
@@ -481,31 +504,6 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .filter-pill:hover{color:var(--text);}
 .filter-pill.active{background:var(--panel);color:var(--text);font-weight:650;box-shadow:var(--shadow-sm);}
 .filter-pill span{font-size:10px;color:var(--text-3);font-variant-numeric:tabular-nums;}
-
-.focus-pill{
-  display:inline-flex;align-items:center;gap:7px;
-  height:34px;padding:0 6px 0 12px;
-  border-radius:999px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  box-shadow:var(--shadow-sm);
-  font-size:11.5px;color:var(--text-2);
-}
-.focus-pill.running{border-color:color-mix(in srgb,var(--accent) 40%,var(--border));box-shadow:0 0 0 3px var(--accent-soft);}
-.focus-time{font-weight:700;font-variant-numeric:tabular-nums;color:var(--text);min-width:40px;}
-.focus-btn{
-  width:24px;height:24px;border-radius:50%;
-  display:grid;place-items:center;color:var(--text-2);
-  background:var(--panel-2);transition:.15s;
-}
-.focus-btn:hover{background:var(--accent-soft);color:var(--accent-text);}
-.focus-btn.primary{background:var(--accent);color:#fff;}
-.focus-btn.primary:hover{filter:brightness(1.08);}
-.focus-btn svg{width:12px;height:12px;}
-.focus-preset{
-  font-size:10px;font-weight:600;color:var(--text-3);padding:2px 6px;border-radius:999px;
-}
-.focus-preset:hover{background:var(--panel-2);color:var(--text);}
 
 .hero-suggestions{
   display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
@@ -1030,6 +1028,15 @@ button:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--accent);o
 .ev-dot{width:5px;height:5px;border-radius:50%;background:var(--ec);flex-shrink:0;}
 .cal-event.past{opacity:.62;}
 .cal-event.past:hover{opacity:1;}
+.cal-event.is-done{opacity:.58;border-left-color:var(--green);background:color-mix(in srgb,var(--green) 7%,var(--panel));}
+.cal-event.is-done:hover{opacity:.92;}
+.cal-event.is-done .ev-title{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--text-3) 65%,transparent);color:var(--text-3);}
+.ev-done-ico{display:inline-flex;align-items:center;color:var(--green);margin-right:4px;vertical-align:-2px;flex-shrink:0;}
+.ev-done-ico svg{width:11px;height:11px;stroke-width:2.3;}
+.week-event.is-done{opacity:.58;border-left-color:var(--green);background:color-mix(in srgb,var(--green) 7%,var(--panel));}
+.week-event.is-done b{text-decoration:line-through;color:var(--text-3);}
+.month-event.is-done{opacity:.55;text-decoration:line-through;color:var(--text-3);}
+.month-event.is-done i{background:var(--green);}
 .now-line{
   position:absolute;left:0;right:0;
   height:0;border-top:1.5px solid var(--red);
@@ -1545,6 +1552,8 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   .month-grid{grid-auto-rows:minmax(80px,1fr);}
   .month-event{display:none;}
   .month-more{display:none;}
+  .month-dots{display:flex !important;flex-wrap:wrap;gap:3px;margin-top:2px;}
+  .month-dots i{width:5px;height:5px;border-radius:50%;background:var(--ec);}
   .month-cell{padding:4px;}
   .schedule-side{grid-template-columns:1fr;}
   .theme-grid{grid-template-columns:1fr;padding:0 17px 17px;}
@@ -1563,15 +1572,17 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   /* 窄屏胶囊新建栏：压缩间距，保证输入区可用宽度 */
   .hero-stage{margin:2px auto 18px;}
   .hero-greeting{font-size:22px;margin-bottom:13px;}
-  .hero-pill-form{height:52px;padding:0 6px 0 13px;gap:6px;}
-  .hero-pill-form input{font-size:13px;}
+  .hero-pill-form{height:auto;min-height:52px;border-radius:20px;padding:8px 10px 8px 13px;gap:8px;flex-wrap:wrap;}
+  .hero-pill-form input{font-size:13px;min-width:160px;height:34px;}
+  .hero-pill-controls{width:100%;justify-content:flex-end;flex-wrap:wrap;}
+  .hero-meta-select{height:29px;font-size:10px;max-width:112px;}
   .hero-prio-btn{height:29px;padding:0 9px;font-size:10px;}
   .hero-submit-btn{width:34px;height:34px;}
   .hero-submit-btn svg{width:14px;height:14px;}
   .hero-controls{gap:8px;margin-top:12px;}
   .hero-suggestions{gap:6px;margin-top:12px;}
-  .focus-pill{height:32px;padding:0 5px 0 10px;gap:5px;}
 }
+.settings-account-email{font-size:12px;font-weight:650;color:var(--text);word-break:break-all;}
 /* ---------- 登录 / 注册 ---------- */
 .auth-locked .app{display:none !important;}
 .auth-screen{
@@ -1665,6 +1676,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   .auth-brand{margin-bottom:21px;}
   .auth-tabs{margin-top:18px;}
 }
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}
 }
@@ -1755,6 +1767,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 <div id="popover-root"></div>
 <div id="modal-root"></div>
 <div class="toasts" id="toasts"></div>
+
 
 <!-- 登录 / 注册 -->
 <div class="auth-screen" id="auth-screen" hidden>
@@ -1912,371 +1925,8 @@ const icon = (name, cls = '') =>
 const colorOf = project => PROJECT_COLORS[project?.color]?.hex || '#64748b';
 
 /* =========================================================
-   三、初始示例数据（与设计稿中的示例内容完全不同）
+   三、空状态初始化
    ========================================================= */
-function createSeedState() {
-  const now = new Date();
-  const today0 = startOfDay(now);
-  const dateAt = offset => dateISO(addDays(today0, offset));
-  const timeAt = (offset, h, m = 0) => {
-    const d = addDays(today0, offset);
-    d.setHours(h, m, 0, 0);
-    return d.toISOString();
-  };
-  const st = (id, title, done = false, children = []) => ({ id, title, done, children });
-
-  const projects = [
-    {
-      id: 'p1',
-      name: '移动端 3.0 版本发布',
-      description: '完成双端功能收尾、灰度验证与应用商店发布',
-      status: 'ongoing',
-      priority: 'high',
-      progress: 70,
-      color: 'blue',
-      startDate: dateAt(-46),
-      endDate: dateAt(12),
-      dependsOn: 'p4',
-      notes: '<p>本周重点是<strong>灰度节奏</strong>与支付链路稳定性。发布检查清单需在周四前冻结，灰度名单由增长团队提供。</p><ul><li>灰度节奏：5% → 20% → 50%</li><li>监控看板：错误率、支付成功率、首屏耗时</li></ul>',
-      subtasks: [
-        st('p1s1', '功能收尾', false, [
-          st('p1s1a', '支付回调超时修复', false),
-          st('p1s1b', '消息中心改版验收', true),
-          st('p1s1c', '离线缓存策略联调', true),
-          st('p1s1d', '登录协议弹窗合规调整', true)
-        ]),
-        st('p1s2', '灰度发布', false, [
-          st('p1s2a', '灰度名单确认', true),
-          st('p1s2b', '灰度开关联调', true),
-          st('p1s2c', '发布检查清单整理', false)
-        ]),
-        st('p1s3', '发布材料', false, [
-          st('p1s3a', '版本说明撰写', true),
-          st('p1s3b', '应用商店截图更新', true),
-          st('p1s3c', '客服话术同步', false)
-        ])
-      ]
-    },
-    {
-      id: 'p2',
-      name: '客户数据看板二期',
-      description: '为华东区客户交付自定义指标与筛选能力',
-      status: 'ongoing',
-      priority: PRIORITIES[UI.quickPriority] ? UI.quickPriority : 'medium',
-      progress: 56,
-      color: 'violet',
-      startDate: dateAt(-31),
-      endDate: dateAt(18),
-      dependsOn: 'p7',
-      notes: '<p>二期交付聚焦<strong>指标口径一致性</strong>和筛选器体验。验收前需要与客户逐项确认口径，避免上线后返工。</p>',
-      subtasks: [
-        st('p2s1', '数据口径', false, [
-          st('p2s1a', '指标口径说明', true),
-          st('p2s1b', '取数 SQL 复核', true)
-        ]),
-        st('p2s2', '可视化', false, [
-          st('p2s2a', '筛选器交互稿', false),
-          st('p2s2b', '图表空态设计', true),
-          st('p2s2c', '移动端适配', false)
-        ]),
-        st('p2s3', '交付', false, [
-          st('p2s3a', '客户验收清单', true),
-          st('p2s3b', '埋点补全', false),
-          st('p2s3c', '权限矩阵确认', false),
-          st('p2s3d', '培训材料初稿', true)
-        ])
-      ]
-    },
-    {
-      id: 'p3',
-      name: '组件库文档站改版',
-      description: '统一组件示例、API 文档与贡献流程',
-      status: 'ongoing',
-      priority: 'low',
-      progress: 88,
-      color: 'emerald',
-      startDate: dateAt(-62),
-      endDate: dateAt(4),
-      dependsOn: '',
-      notes: '<p>文档站改版接近收尾，最后一项是 <strong>Button 示例校对</strong>。完成后同步发布 v2.4 变更日志。</p>',
-      subtasks: [
-        st('p3s1', '文档示例', false, [
-          st('p3s1a', 'Button 文档示例校对', false),
-          st('p3s1b', '表单组件 API 补全', true)
-        ]),
-        st('p3s2', '交互组件', false, [
-          st('p3s2a', '主题切换示例', true),
-          st('p3s2b', '图标库迁移', true),
-          st('p3s2c', '响应式布局修正', true)
-        ]),
-        st('p3s3', '发布维护', false, [
-          st('p3s3a', '文档搜索优化', true),
-          st('p3s3b', '贡献指南更新', true),
-          st('p3s3c', '版本变更日志整理', true)
-        ])
-      ]
-    },
-    {
-      id: 'p4',
-      name: '内部 API 网关迁移',
-      description: '将旧网关流量平滑迁移至自研网关 v2',
-      status: 'to-start',
-      priority: 'high',
-      progress: 0,
-      color: 'amber',
-      startDate: dateAt(5),
-      endDate: dateAt(40),
-      dependsOn: '',
-      notes: '<p>正式启动前需要完成<strong>流量镜像验证</strong>和回滚预案评审。迁移窗口暂定月底的周四深夜。</p>',
-      subtasks: [
-        st('p4s1', '网络拓扑梳理', false),
-        st('p4s2', '流量镜像方案', false),
-        st('p4s3', '回滚预案评审', false),
-        st('p4s4', '迁移窗口确认', false)
-      ]
-    },
-    {
-      id: 'p5',
-      name: '年度技术分享计划',
-      description: '规划跨团队分享主题、讲师与排期',
-      status: 'to-start',
-      priority: 'medium',
-      progress: 13,
-      color: 'cyan',
-      startDate: dateAt(-3),
-      endDate: dateAt(26),
-      dependsOn: '',
-      notes: '<p>已收集到 14 个候选议题，下一步需要确认讲师档期。分享频率暂定<strong>每两周一场</strong>。</p>',
-      subtasks: [
-        st('p5s1', '议程收集', true),
-        st('p5s2', '讲师邀约', false),
-        st('p5s3', '场地与设备', false),
-        st('p5s4', '分享日历发布', false),
-        st('p5s5', '录制方案', false),
-        st('p5s6', '物料设计', false),
-        st('p5s7', '反馈问卷', false),
-        st('p5s8', '复盘会议安排', false)
-      ]
-    },
-    {
-      id: 'p6',
-      name: '品牌视觉规范 2.1',
-      description: '更新色彩、动效与多语言排版规范',
-      status: 'under-review',
-      priority: 'medium',
-      progress: 92,
-      color: 'pink',
-      startDate: dateAt(-38),
-      endDate: dateAt(2),
-      dependsOn: '',
-      notes: '<p>规范主体已完成，终审关注<strong>暗色模式映射</strong>与对比度。多语言排版适配待确认后再合并。</p>',
-      subtasks: [
-        st('p6s1', '色彩系统定稿', true),
-        st('p6s2', '字体层级规范', true),
-        st('p6s3', '栅格与间距', true),
-        st('p6s4', '图标风格指南', true),
-        st('p6s5', '动效曲线规范', true),
-        st('p6s6', '暗色模式映射', true),
-        st('p6s7', '组件状态示例', true),
-        st('p6s8', '可访问性对比度校验', true),
-        st('p6s9', '设计资产库同步', true),
-        st('p6s10', '品牌插画风格', true),
-        st('p6s11', '使用说明撰写', true),
-        st('p6s12', '多语言排版适配', false)
-      ]
-    },
-    {
-      id: 'p7',
-      name: '性能埋点上报联调',
-      description: '验证首屏与长任务指标的上报准确性',
-      status: 'under-review',
-      priority: 'low',
-      progress: 80,
-      color: 'orange',
-      startDate: dateAt(-21),
-      endDate: dateAt(6),
-      dependsOn: '',
-      notes: '<p>首屏与长任务指标已对齐，当前只剩<strong>上报去重策略</strong>需要产品确认。校验脚本可随版本一起归档。</p>',
-      subtasks: [
-        st('p7s1', '首屏指标埋点', true),
-        st('p7s2', '长任务指标埋点', true),
-        st('p7s3', '上报去重策略', false),
-        st('p7s4', '数据校验脚本', true),
-        st('p7s5', '联调环境验证', true)
-      ]
-    }
-  ];
-
-  const tasks = [
-    {
-      id: 't1', title: '整理 3.0 灰度发布检查清单', projectId: 'p1', priority: 'high',
-      status: 'pending', dueAt: timeAt(0, 17, 0), createdAt: timeAt(-3, 10, 20),
-      completedAt: null, estMinutes: 45
-    },
-    {
-      id: 't2', title: '修复支付回调偶发超时告警', projectId: 'p1', priority: 'high',
-      status: 'pending', dueAt: timeAt(-1, 18, 0), createdAt: timeAt(-4, 9, 40),
-      completedAt: null, estMinutes: 90
-    },
-    {
-      id: 't3', title: '评审客户看板筛选器交互稿', projectId: 'p2', priority: 'medium',
-      status: 'pending', dueAt: timeAt(0, 15, 0), createdAt: timeAt(-2, 14, 10),
-      completedAt: null, estMinutes: 60
-    },
-    {
-      id: 't4', title: '回复隐私协议批注第 3 条', projectId: 'p1', priority: 'medium',
-      status: 'pending', dueAt: timeAt(0, 11, 30), createdAt: timeAt(-1, 17, 30),
-      completedAt: null, estMinutes: 30
-    },
-    {
-      id: 't5', title: '补充网关迁移割接风险评估', projectId: 'p4', priority: 'high',
-      status: 'pending', dueAt: timeAt(1, 12, 0), createdAt: timeAt(-2, 9, 15),
-      completedAt: null, estMinutes: 60
-    },
-    {
-      id: 't6', title: '校对组件库 Button 文档示例', projectId: 'p3', priority: 'low',
-      status: 'pending', dueAt: timeAt(2, 18, 0), createdAt: timeAt(-6, 11, 0),
-      completedAt: null, estMinutes: 45
-    },
-    {
-      id: 't7', title: '预约品牌规范终审会议室', projectId: 'p6', priority: 'low',
-      status: 'pending', dueAt: timeAt(4, 10, 0), createdAt: timeAt(-1, 16, 10),
-      completedAt: null, estMinutes: 30
-    },
-    {
-      id: 't8', title: '梳理分享会讲师候选名单', projectId: 'p5', priority: 'medium',
-      status: 'pending', dueAt: timeAt(6, 18, 0), createdAt: timeAt(-5, 13, 25),
-      completedAt: null, estMinutes: 60
-    },
-    {
-      id: 't9', title: '完成 3.0 埋点字段对齐', projectId: 'p1', priority: 'medium',
-      status: 'completed', dueAt: timeAt(0, 18, 0), createdAt: timeAt(-5, 10, 0),
-      completedAt: timeAt(0, 9, 12), estMinutes: 60
-    },
-    {
-      id: 't10', title: '输出看板二期指标口径说明', projectId: 'p2', priority: 'medium',
-      status: 'completed', dueAt: timeAt(0, 18, 0), createdAt: timeAt(-4, 15, 0),
-      completedAt: timeAt(0, 8, 40), estMinutes: 50
-    },
-    {
-      id: 't11', title: '修复列表滚动卡顿问题', projectId: 'p3', priority: 'low',
-      status: 'completed', dueAt: timeAt(-1, 18, 0), createdAt: timeAt(-5, 9, 0),
-      completedAt: timeAt(-1, 16, 20), estMinutes: 45
-    },
-    {
-      id: 't12', title: '更新网关压测报告结论', projectId: 'p4', priority: 'medium',
-      status: 'completed', dueAt: timeAt(-2, 18, 0), createdAt: timeAt(-6, 10, 30),
-      completedAt: timeAt(-2, 14, 5), estMinutes: 55
-    },
-    {
-      id: 't13', title: '整理客户验收问题清单', projectId: 'p2', priority: 'medium',
-      status: 'completed', dueAt: timeAt(-2, 18, 0), createdAt: timeAt(-7, 14, 0),
-      completedAt: timeAt(-2, 11, 30), estMinutes: 40
-    },
-    {
-      id: 't14', title: '完成设计 Token 命名规范初稿', projectId: 'p6', priority: 'low',
-      status: 'completed', dueAt: timeAt(-3, 18, 0), createdAt: timeAt(-8, 9, 30),
-      completedAt: timeAt(-3, 18, 10), estMinutes: 70
-    },
-    {
-      id: 't15', title: '对齐双端灰度量纲', projectId: 'p1', priority: 'high',
-      status: 'completed', dueAt: timeAt(-3, 18, 0), createdAt: timeAt(-6, 16, 0),
-      completedAt: timeAt(-3, 10, 0), estMinutes: 50
-    },
-    {
-      id: 't16', title: '完成分享会议题征集', projectId: 'p5', priority: 'low',
-      status: 'completed', dueAt: timeAt(-4, 18, 0), createdAt: timeAt(-9, 11, 0),
-      completedAt: timeAt(-4, 17, 45), estMinutes: 35
-    },
-    {
-      id: 't17', title: '归档 10 月迭代复盘记录', projectId: 'p1', priority: 'low',
-      status: 'completed', dueAt: timeAt(-5, 18, 0), createdAt: timeAt(-10, 13, 0),
-      completedAt: timeAt(-5, 15, 0), estMinutes: 30
-    }
-  ];
-
-  const events = [
-    { id: 'e1',  title: '每日站会',               date: dateAt(0),  start: '09:30', end: '09:45', type: 'meeting',  projectId: 'p1', location: '线上' },
-    { id: 'e2',  title: '3.0 版本发布评审',        date: dateAt(0),  start: '10:00', end: '11:30', type: 'meeting',  projectId: 'p1', location: '会议室 A' },
-    { id: 'e3',  title: '深度工作 · 支付回调排查', date: dateAt(0),  start: '14:00', end: '15:30', type: 'focus',    projectId: 'p1', location: '' },
-    { id: 'e4',  title: '客户数据口径同步',        date: dateAt(0),  start: '16:30', end: '17:15', type: 'meeting',  projectId: 'p2', location: '线上' },
-    { id: 'e5',  title: '日终复盘',               date: dateAt(0),  start: '18:30', end: '19:00', type: 'personal', projectId: '',   location: '' },
-    { id: 'e6',  title: '设计规范走查',            date: dateAt(1),  start: '10:00', end: '11:00', type: 'meeting',  projectId: 'p6', location: '设计区' },
-    { id: 'e7',  title: '深度工作 · 看板筛选联调', date: dateAt(1),  start: '14:00', end: '16:00', type: 'focus',    projectId: 'p2', location: '' },
-    { id: 'e8',  title: '运维周会',               date: dateAt(2),  start: '09:30', end: '10:15', type: 'meeting',  projectId: 'p4', location: '线上' },
-    { id: 'e9',  title: '技术预研 · 网关灰度',     date: dateAt(2),  start: '15:00', end: '16:30', type: 'focus',    projectId: 'p4', location: '' },
-    { id: 'e10', title: '组件文档评审',            date: dateAt(3),  start: '11:00', end: '12:00', type: 'meeting',  projectId: 'p3', location: '线上' },
-    { id: 'e11', title: '一对一沟通',             date: dateAt(3),  start: '16:00', end: '16:30', type: 'meeting',  projectId: 'p6', location: '洽谈间' },
-    { id: 'e12', title: '周会 · 迭代复盘',         date: dateAt(-1), start: '10:00', end: '11:00', type: 'meeting',  projectId: 'p1', location: '会议室 B' },
-    { id: 'e13', title: '客户验收沟通',            date: dateAt(-1), start: '15:00', end: '16:00', type: 'meeting',  projectId: 'p2', location: '线上' },
-    { id: 'e14', title: '设计资产库整理',          date: dateAt(-2), start: '11:00', end: '12:00', type: 'focus',    projectId: 'p6', location: '' },
-    { id: 'e15', title: '深度工作 · 指标口径',     date: dateAt(-3), start: '14:00', end: '15:30', type: 'focus',    projectId: 'p2', location: '' },
-    { id: 'e16', title: '技术分享 · 首屏性能实践', date: dateAt(-4), start: '10:00', end: '11:00', type: 'personal', projectId: 'p5', location: '多功能厅' },
-    { id: 'e17', title: '发布前全量回归',          date: dateAt(5),  start: '10:00', end: '12:00', type: 'focus',    projectId: 'p1', location: '' },
-    { id: 'e18', title: '客户演示彩排',            date: dateAt(7),  start: '14:00', end: '15:00', type: 'meeting',  projectId: 'p2', location: '线上' },
-    { id: 'e19', title: '迭代规划会',             date: dateAt(9),  start: '09:30', end: '10:30', type: 'meeting',  projectId: 'p1', location: '会议室 A' },
-    { id: 'e20', title: '架构评审',               date: dateAt(15), start: '10:00', end: '11:00', type: 'meeting',  projectId: 'p4', location: '会议室 C' },
-    { id: 'e21', title: '季度目标复盘',            date: dateAt(-9), start: '15:00', end: '16:00', type: 'personal', projectId: '',   location: '' },
-    { id: 'e22', title: '设计评审',               date: dateAt(-12),start: '14:00', end: '15:00', type: 'meeting',  projectId: 'p6', location: '设计区' }
-  ];
-
-  /* ---- 近 30 天操作日志：用确定性方式生成，刷新不会跳动 ---- */
-  const logs = [];
-  const pool = ['p1', 'p1', 'p1', 'p2', 'p2', 'p3', 'p4', 'p6', 'p6', 'p5', 'p7'];
-  for (let i = 29; i >= 0; i--) {
-    const d = addDays(today0, -i);
-    const key = dateISO(d);
-    const h = hashString('wb-log:' + key);
-    const weekend = d.getDay() === 0 || d.getDay() === 6;
-    let base = weekend ? (h % 3) : 1 + (h % 3);
-    if (h % 11 === 0) base = 0;
-    const counts = {};
-    for (let k = 0; k < base; k++) {
-      const pid = pool[(h >>> (k * 3)) % pool.length];
-      counts[pid] = (counts[pid] || 0) + 1;
-    }
-    const missed = (h % 9 === 0 ? 1 : 0) + (h % 17 === 0 ? 1 : 0);
-    logs.push({
-      date: key,
-      counts,
-      total: base,
-      onTime: Math.max(0, base - Math.min(base, missed)),
-      focusMin: base ? base * (32 + (h % 48)) : (h % 4 === 0 ? 25 : 0)
-    });
-  }
-  // 让最近完成的任务也进入日志，保证图表与任务流不割裂
-  tasks.filter(t => t.status === 'completed').forEach(t => {
-    const key = dateISO(new Date(t.completedAt));
-    let log = logs.find(l => l.date === key);
-    if (!log) {
-      log = { date: key, counts: {}, total: 0, onTime: 0, focusMin: 0 };
-      logs.push(log);
-    }
-    log.counts[t.projectId] = (log.counts[t.projectId] || 0) + 1;
-    log.total += 1;
-    if (new Date(t.completedAt) <= new Date(t.dueAt)) log.onTime += 1;
-    log.focusMin += t.estMinutes || 30;
-  });
-  logs.sort((a, b) => a.date.localeCompare(b.date));
-
-  return {
-    version: 1,
-    tasks,
-    projects,
-    events,
-    logs,
-    settings: {
-      theme: 'system',
-      notifications: true,
-      collapsed: false
-    },
-    meta: {
-      createdAt: now.toISOString(),
-      savedAt: now.toISOString()
-    }
-  };
-}
-
 function createEmptyState(theme = 'system') {
   const now = new Date().toISOString();
   return {
@@ -2378,10 +2028,18 @@ const Store = (() => {
     async load() {
       let fromIDB = await idbGet(recordKey());
       if (!fromIDB && scope === 'guest') fromIDB = await idbGet(LEGACY_RECORD_KEY);
-      if (fromIDB && fromIDB.tasks && fromIDB.projects) return fromIDB;
+      if (!fromIDB && scope === 'guest') fromIDB = await idbGet('state:local');
       let fromLS = lsGet(localStorageKey());
       if (!fromLS && scope === 'guest') fromLS = lsGet(LEGACY_STORAGE_KEY);
-      return fromLS;
+      if (!fromLS && scope === 'guest') fromLS = lsGet(`${STORAGE_KEY}:local`);
+      const validIDB = fromIDB && fromIDB.tasks && fromIDB.projects ? fromIDB : null;
+      const validLS = fromLS && fromLS.tasks && fromLS.projects ? fromLS : null;
+      if (validIDB && validLS) {
+        const tIDB = Date.parse(validIDB.meta?.savedAt || '') || 0;
+        const tLS = Date.parse(validLS.meta?.savedAt || '') || 0;
+        return tLS > tIDB ? validLS : validIDB;
+      }
+      return validIDB || validLS;
     },
     async save(state) {
       const okLS = lsPut(state, localStorageKey());
@@ -2396,35 +2054,6 @@ const Store = (() => {
    ========================================================= */
 let S = null;
 let saveTimer = null;
-let activeHighlightSlot = null;
-let suppressSlotClick = false;
-
-const todayISO = () => dateISO(new Date());
-const UI = {
-  activeTab: 'overview',
-  scheduleView: 'day',
-  scheduleDate: todayISO(),
-  expanded: new Set(),
-  completedGroupOpen: false, // 「已完成」类目默认折叠
-  addingSubtask: null,   // { projectId, parentId }
-  editingSubtask: null,  // { projectId, nodeId } 原位编辑子任务标题
-  modal: null,           // { type, data }
-  menu: null,            // { x, y, taskId }
-  bellOpen: false,
-  chartHover: null,
-  focusAfterRender: null,
-  justExpandedProjectId: null,
-  taskFilter: 'all',
-  quickPriority: 'medium',
-  searchQuery: ''
-};
-
-const FOCUS = {
-  durationSec: 25 * 60,
-  remainingSec: 25 * 60,
-  running: false,
-  timerId: null
-};
 
 /* =========================================================
    五之二、Supabase Auth 与多端同步
@@ -3041,6 +2670,31 @@ function initCloudAuth() {
   });
   return true;
 }
+let activeHighlightSlot = null;
+let suppressSlotClick = false;
+
+const todayISO = () => dateISO(new Date());
+const UI = {
+  activeTab: 'overview',
+  scheduleView: 'day',
+  scheduleDate: todayISO(),
+  expanded: new Set(),
+  completedGroupOpen: false, // 「已完成」类目默认折叠
+  addingSubtask: null,   // { projectId, parentId }
+  editingSubtask: null,  // { projectId, nodeId } 原位编辑子任务标题
+  modal: null,           // { type, data }
+  menu: null,            // { x, y, taskId }
+  bellOpen: false,
+  chartHover: null,
+  focusAfterRender: null,
+  justExpandedProjectId: null,
+  taskFilter: 'all',
+  quickPriority: 'medium',
+  quickProjectId: '',
+  quickDueMode: 'tomorrow',
+  searchQuery: ''
+};
+
 
 /* =========================================================
    六、查询与计算辅助
@@ -3123,7 +2777,7 @@ function dueMeta(task) {
   else text = `${due.getMonth() + 1}月${due.getDate()}日 ${hm(due)}`;
   if (overdue) {
     const days = Math.floor((startOfDay(now) - startOfDay(due)) / 86400000);
-    text = days >= 1 ? `已逾期 ${days} 天` : `已逾期 · ${hm(due)}`;
+    text = days >= 1 ? `已过期 ${days} 天` : `已过期 · ${hm(due)}`;
   }
   return { text, overdue, today: sameToday };
 }
@@ -3181,10 +2835,15 @@ function adjustLog(dateKey, projectId, delta, onTimeDelta, focusDelta) {
 function scheduledEventForTask(taskId) {
   return S.events.find(event => event.taskId === taskId) || null;
 }
+function isEventTaskDone(event) {
+  if (!event || !event.taskId) return false;
+  const task = taskById(event.taskId);
+  return !!(task && task.status === 'completed');
+}
 function upcomingTodayEvents() {
   const now = new Date();
   return S.events
-    .filter(event => event.date === todayISO() && minutesOf(event.end) >= now.getHours() * 60 + now.getMinutes())
+    .filter(event => event.date === todayISO() && !isEventTaskDone(event) && minutesOf(event.end) >= now.getHours() * 60 + now.getMinutes())
     .sort((a, b) => minutesOf(a.start) - minutesOf(b.start));
 }
 function todayEvents() {
@@ -3237,7 +2896,7 @@ function projectShortLabel(project) {
 }
 function projectTagHTML(projectId) {
   const project = projectById(projectId);
-  if (!project) return `<span class="tag neutral">未关联项目</span>`;
+  if (!project) return `<span class="tag neutral">未关联</span>`;
   /* 待办与排期列表展示完整项目名，窄屏可换行，不再截断为 7 个字 */
   return `<span class="tag" style="--pc:${colorOf(project)}" title="${escapeHTML(project.name)}">${escapeHTML(project.name)}</span>`;
 }
@@ -3314,7 +2973,7 @@ function renderSidebar() {
     { id: 'schedule', label: '日程', ico: 'calendar', badge: eventCount },
     { id: 'data', label: '数据分析', ico: 'chart', badge: null }
   ];
-  const email = Cloud.user?.email || '本地工作台';
+  const email = Cloud.user?.email || '未登录';
   const initial = email.slice(0, 1).toUpperCase();
   const sidebar = $('#sidebar');
   sidebar.classList.toggle('collapsed', collapsed);
@@ -3376,7 +3035,7 @@ function topbarCopy() {
   if (UI.activeTab === 'overview') {
     return {
       title: greeting(),
-      sub: `${todayDue} 项任务今日到期 · ${overdue} 项已逾期 · 今天有 ${todayEventCount} 个日程`
+      sub: `${todayDue} 项任务今日到期 · ${overdue} 项已过期 · 今天有 ${todayEventCount} 个日程`
     };
   }
   if (UI.activeTab === 'projects') {
@@ -3444,7 +3103,7 @@ function renderTopbar() {
             <div class="pop-head">
               <div>
                 <div class="pop-title">今日提醒</div>
-                <div class="pop-sub">${S.settings.notifications ? `${todayEventsList.length} 个待办日程 · ${overdueTasks.length} 项逾期` : '通知已关闭'}</div>
+                <div class="pop-sub">${S.settings.notifications ? `${todayEventsList.length} 个待办日程 · ${overdueTasks.length} 项过期` : '通知已关闭'}</div>
               </div>
               <button class="icon-mini" data-action="toggle-bell" title="关闭">${icon('x')}</button>
             </div>
@@ -3483,12 +3142,6 @@ function renderTopbar() {
 /* =========================================================
    十、概览视图
    ========================================================= */
-function formatFocusClock(sec) {
-  const m = Math.floor(Math.max(0, sec) / 60);
-  const s = Math.max(0, sec) % 60;
-  return `${pad2(m)}:${pad2(s)}`;
-}
-
 function renderOverview() {
   const allPending = pendingTasksSorted();
   const now = new Date();
@@ -3513,23 +3166,28 @@ function renderOverview() {
       <form class="hero-pill-form" id="quick-add-form" autocomplete="off">
         <span class="hero-pill-ico">${icon('plus')}</span>
         <input id="quick-add-input" name="title" maxlength="120" placeholder="接下来要做什么？回车即可创建一条任务" aria-label="快速新建任务">
-        <button type="button" class="hero-prio-btn ${prioMeta.cls}" data-action="cycle-quick-prio" title="点击切换默认优先级">${prioMeta.label}优先</button>
-        <button type="submit" class="hero-submit-btn" title="创建任务 (Enter)" aria-label="创建任务">${icon('send')}</button>
+        <div class="hero-pill-controls">
+          <select id="quick-project-select" class="hero-meta-select" title="选择关联项目" aria-label="关联项目">
+            <option value="" ${!UI.quickProjectId ? 'selected' : ''}>未关联</option>
+            ${S.projects.filter(p => !projectIsComplete(p)).map(p =>
+              `<option value="${p.id}" ${UI.quickProjectId === p.id ? 'selected' : ''}>${escapeHTML(p.name)}</option>`).join('')}
+          </select>
+          <select id="quick-due-select" class="hero-meta-select" title="选择默认截止时间" aria-label="截止时间">
+            <option value="tomorrow" ${UI.quickDueMode === 'tomorrow' ? 'selected' : ''}>明天 ${now.getHours() >= 18 ? '20:00' : '18:00'}</option>
+            <option value="today" ${UI.quickDueMode === 'today' ? 'selected' : ''}>今天 ${now.getHours() >= 20 ? '23:00' : (now.getHours() >= 18 ? '20:00' : '18:00')}</option>
+            <option value="dayAfter" ${UI.quickDueMode === 'dayAfter' ? 'selected' : ''}>后天 ${now.getHours() >= 18 ? '20:00' : '18:00'}</option>
+            <option value="week" ${UI.quickDueMode === 'week' ? 'selected' : ''}>7 天后</option>
+          </select>
+          <button type="button" class="hero-prio-btn ${prioMeta.cls}" data-action="cycle-quick-prio" title="点击切换默认优先级">${prioMeta.label}优先</button>
+          <button type="submit" class="hero-submit-btn" title="创建任务 (Enter)" aria-label="创建任务">${icon('send')}</button>
+        </div>
       </form>
       <div class="hero-controls">
         <div class="filter-pills" role="tablist" aria-label="待办筛选">
           <button type="button" class="filter-pill ${UI.taskFilter === 'all' ? 'active' : ''}" data-action="set-task-filter" data-filter="all">全部 <span>${allPending.length}</span></button>
           <button type="button" class="filter-pill ${UI.taskFilter === 'today' ? 'active' : ''}" data-action="set-task-filter" data-filter="today">今日 <span>${todayDueList.length}</span></button>
-          <button type="button" class="filter-pill ${UI.taskFilter === 'overdue' ? 'active' : ''}" data-action="set-task-filter" data-filter="overdue">逾期 <span>${overdueList.length}</span></button>
+          <button type="button" class="filter-pill ${UI.taskFilter === 'overdue' ? 'active' : ''}" data-action="set-task-filter" data-filter="overdue">过期 <span>${overdueList.length}</span></button>
           <button type="button" class="filter-pill ${UI.taskFilter === 'high' ? 'active' : ''}" data-action="set-task-filter" data-filter="high">高优先 <span>${highList.length}</span></button>
-        </div>
-        <div class="focus-pill ${FOCUS.running ? 'running' : ''}" id="focus-pill">
-          ${icon('focus')}
-          <span class="focus-time" id="focus-clock">${formatFocusClock(FOCUS.remainingSec)}</span>
-          <button type="button" class="focus-preset" data-action="focus-preset" data-min="25" title="设为 25 分钟">25m</button>
-          <button type="button" class="focus-preset" data-action="focus-preset" data-min="45" title="设为 45 分钟">45m</button>
-          <button type="button" class="focus-btn primary" data-action="focus-toggle" title="${FOCUS.running ? '暂停专注' : '开始专注'}" aria-label="${FOCUS.running ? '暂停专注' : '开始专注'}">${icon(FOCUS.running ? 'pause' : 'play')}</button>
-          <button type="button" class="focus-btn" data-action="focus-reset" title="重置计时" aria-label="重置计时">${icon('refresh')}</button>
         </div>
       </div>
       <div class="hero-suggestions">
@@ -3543,7 +3201,7 @@ function renderOverview() {
       <section class="card card-pad">
         <div class="card-head">
           <h2 class="card-title">待办任务 <span class="count-pill">${filtered.length} 项</span></h2>
-          <span class="section-sub">${overdueList.length ? `<span style="color:var(--red)">${overdueList.length} 项已逾期</span>` : '今日节奏良好'}</span>
+          <span class="section-sub">${overdueList.length ? `<span style="color:var(--red)">${overdueList.length} 项已过期</span>` : '今日节奏良好'}</span>
         </div>
         <div class="task-list">
           ${filtered.length ? filtered.map(taskRowHTML).join('') : `
@@ -3841,14 +3499,16 @@ function calendarEventHTML(event) {
   const eventDate = fromISO(event.date);
   const past = startOfDay(eventDate) < startOfDay(now) ||
     (sameDay(eventDate, now) && minutesOf(event.end) < now.getHours() * 60 + now.getMinutes());
+  const done = isEventTaskDone(event);
+  const doneBadge = done ? `<span class="ev-done-ico">${icon('check-circle')}</span>` : '';
   return `
-    <div class="cal-event ${compact ? 'compact' : ''} ${past ? 'past' : ''}" draggable="true"
+    <div class="cal-event ${compact ? 'compact' : ''} ${past ? 'past' : ''} ${done ? 'is-done' : ''}" draggable="true"
       data-drag-event="${event.id}" data-action="open-event" data-id="${event.id}"
       style="--ec:${type.color};top:${top.toFixed(1)}px;height:${height.toFixed(1)}px;left:${left};width:${width}"
-      title="${escapeHTML(event.title)} · ${event.start}–${event.end}${event.location ? ' · ' + escapeHTML(event.location) : ''}">
+      title="${done ? '[已完成] ' : ''}${escapeHTML(event.title)} · ${event.start}–${event.end}${event.location ? ' · ' + escapeHTML(event.location) : ''}">
       ${compact
-        ? `<div class="ev-title"><span class="ev-dot"></span>${escapeHTML(event.title)}</div>`
-        : `<div class="ev-time">${event.start} – ${event.end}${event.location ? ' · ' + escapeHTML(event.location) : ''}</div><div class="ev-title">${escapeHTML(event.title)}</div>`}
+        ? `<div class="ev-title">${done ? doneBadge : '<span class="ev-dot"></span>'}${escapeHTML(event.title)}</div>`
+        : `<div class="ev-time">${event.start} – ${event.end}${done ? ' · 已完成' : ''}${event.location ? ' · ' + escapeHTML(event.location) : ''}</div><div class="ev-title">${doneBadge}${escapeHTML(event.title)}</div>`}
     </div>`;
 }
 
@@ -3906,9 +3566,10 @@ function renderWeekView(anchorKey) {
             </button>
             ${events.slice(0, 6).map(event => {
               const type = EVENT_TYPES[event.type] || EVENT_TYPES.meeting;
-              return `<button class="week-event" data-action="open-event" data-id="${event.id}" style="--ec:${type.color}" title="${escapeHTML(event.title)} · ${event.start} – ${event.end}">
-                <b>${escapeHTML(event.title)}</b>
-                <span><i class="ev-dot"></i>${event.start} – ${event.end}</span>
+              const done = isEventTaskDone(event);
+              return `<button class="week-event ${done ? 'is-done' : ''}" data-action="open-event" data-id="${event.id}" style="--ec:${type.color}" title="${done ? '[已完成] ' : ''}${escapeHTML(event.title)} · ${event.start} – ${event.end}">
+                <b>${done ? `<span class="ev-done-ico">${icon('check-circle')}</span>` : ''}${escapeHTML(event.title)}</b>
+                <span><i class="ev-dot"></i>${event.start} – ${event.end}${done ? ' · 已完成' : ''}</span>
               </button>`;
             }).join('')}
             ${!events.length ? `<div class="week-empty">暂无安排</div>` : ''}
@@ -3938,9 +3599,11 @@ function renderMonthView(anchorKey) {
               <div class="mdate">${day.getDate()}</div>
               ${events.slice(0, 2).map(event => {
                 const type = EVENT_TYPES[event.type] || EVENT_TYPES.meeting;
-                return `<div class="month-event" style="--ec:${type.color}"><i></i>${escapeHTML(event.title)}</div>`;
+                const done = isEventTaskDone(event);
+                return `<div class="month-event ${done ? 'is-done' : ''}" style="--ec:${type.color}"><i></i>${escapeHTML(event.title)}</div>`;
               }).join('')}
               ${events.length > 2 ? `<div class="month-more">+${events.length - 2} 更多</div>` : ''}
+              ${events.length ? `<div class="month-dots" style="display:none">${events.slice(0, 5).map(event => `<i style="--ec:${(EVENT_TYPES[event.type] || EVENT_TYPES.meeting).color}"></i>`).join('')}</div>` : ''}
             </div>`;
         }).join('')}
       </div>
@@ -4239,8 +3902,8 @@ function renderDataAnalysis() {
       <section class="card ontime-card">
         <div class="chart-head" style="margin-bottom:2px">
           <div>
-            <div class="chart-title">逾期率诊断</div>
-            <div class="chart-sub">按时交付率与当前逾期风险</div>
+            <div class="chart-title">过期率诊断</div>
+            <div class="chart-sub">按时交付率与当前过期风险</div>
           </div>
           <span class="chart-badge"><i style="background:var(--green)"></i>近 30 天</span>
         </div>
@@ -4253,16 +3916,16 @@ function renderDataAnalysis() {
           </div>
           <div class="ontime-stats">
             <div class="ontime-stat"><span>按时完成</span><strong>${stats.onTime} 项</strong></div>
-            <div class="ontime-stat"><span>逾期完成</span><strong class="${stats.total - stats.onTime > 0 ? 'bad' : ''}">${Math.max(0, stats.total - stats.onTime)} 项</strong></div>
-            <div class="ontime-stat"><span>当前待办逾期</span><strong class="${pendingOverdue.length ? 'bad' : ''}">${pendingOverdue.length} 项</strong></div>
+            <div class="ontime-stat"><span>过期完成</span><strong class="${stats.total - stats.onTime > 0 ? 'bad' : ''}">${Math.max(0, stats.total - stats.onTime)} 项</strong></div>
+            <div class="ontime-stat"><span>当前待办过期</span><strong class="${pendingOverdue.length ? 'bad' : ''}">${pendingOverdue.length} 项</strong></div>
             <div class="ontime-stat"><span>平均延期</span><strong>${avgDelay} 天</strong></div>
           </div>
         </div>
         <div class="insight-note">
           ${icon('alert')}
           <span>${pendingOverdue.length
-            ? `当前有 <b>${pendingOverdue.length} 项</b>任务逾期${topOverdue ? `，主要集中在「<b>${escapeHTML(topOverdueName)}</b>」` : ''}。建议先清理延期最久的任务，再安排新工作。`
-            : '本周期没有逾期任务，节奏保持得很好。可以继续保持「先排期、再执行」的习惯。'}</span>
+            ? `当前有 <b>${pendingOverdue.length} 项</b>任务过期${topOverdue ? `，主要集中在「<b>${escapeHTML(topOverdueName)}</b>」` : ''}。建议先清理延期最久的任务，再安排新工作。`
+            : '本周期没有过期任务，节奏保持得很好。可以继续保持「先排期、再执行」的习惯。'}</span>
         </div>
       </section>
     </div>`;
@@ -4333,7 +3996,7 @@ function renderSettings() {
         <div class="settings-row">
           <div>
             <h4>消息通知</h4>
-            <p>在顶栏显示今日日程和逾期任务提醒。关闭后不会再出现小红点。</p>
+            <p>在顶栏显示今日日程和过期任务提醒。关闭后不会再出现小红点。</p>
           </div>
           <button class="switch ${S.settings.notifications ? 'on' : ''}" data-action="toggle-notifications"
             role="switch" aria-checked="${S.settings.notifications}" aria-label="消息通知">
@@ -4362,7 +4025,7 @@ function renderSettings() {
           <strong>Workbench · 个人工作台</strong>
           <span>Local-first · 单文件应用 · 多端云同步</span>
         </div>
-        <span class="about-version">v1.6.1</span>
+        <span class="about-version">v1.8</span>
       </section>
     </div>`;
 }
@@ -4435,40 +4098,6 @@ function renderSearchResults(query) {
   return out;
 }
 
-function updateFocusClockUI() {
-  const clock = $('#focus-clock');
-  const pill = $('#focus-pill');
-  if (clock) clock.textContent = formatFocusClock(FOCUS.remainingSec);
-  if (pill) pill.classList.toggle('running', FOCUS.running);
-}
-
-function toggleFocusTimer() {
-  if (FOCUS.running) {
-    FOCUS.running = false;
-    clearInterval(FOCUS.timerId);
-    FOCUS.timerId = null;
-    renderAll();
-    return;
-  }
-  if (FOCUS.remainingSec <= 0) FOCUS.remainingSec = FOCUS.durationSec;
-  FOCUS.running = true;
-  clearInterval(FOCUS.timerId);
-  FOCUS.timerId = setInterval(() => {
-    FOCUS.remainingSec -= 1;
-    if (FOCUS.remainingSec <= 0) {
-      FOCUS.remainingSec = 0;
-      FOCUS.running = false;
-      clearInterval(FOCUS.timerId);
-      FOCUS.timerId = null;
-      toast('专注时段完成，休息一下吧！');
-      renderAll();
-      return;
-    }
-    updateFocusClockUI();
-  }, 1000);
-  renderAll();
-}
-
 function openModal(type, data = {}) {
   UI.modal = { type, data };
   closeMenu();
@@ -4481,18 +4110,7 @@ function closeModal() {
   UI.modal = null;
   $('#modal-root').innerHTML = '';
 }
-/* 点击弹窗外区域时先保存再关闭：任务编辑与子任务备注避免丢失已输入内容 */
 function closeModalWithSave() {
-  const modal = UI.modal;
-  if (!modal) return;
-  if (modal.type === 'subtask-note') {
-    const form = document.querySelector('[data-form="subtask-note"]');
-    if (form) { submitSubtaskNoteForm(form); return; }
-  }
-  if (modal.type === 'task') {
-    const form = document.querySelector('[data-form="task"]');
-    if (form) { submitTaskForm(form); return; }
-  }
   closeModal();
 }
 
@@ -4551,7 +4169,7 @@ function eventFormHTML(event) {
 function taskFormHTML(task) {
   const due = new Date(task.dueAt);
   const note = String(task.note || '');
-  const projectOptions = `<option value="">未关联项目</option>${S.projects.map(project =>
+  const projectOptions = `<option value="">未关联</option>${S.projects.map(project =>
     `<option value="${project.id}" ${task.projectId === project.id ? 'selected' : ''}>${escapeHTML(project.name)}</option>`).join('')}`;
   const priorityOptions = Object.entries(PRIORITIES).map(([key, meta]) =>
     `<option value="${key}" ${task.priority === key ? 'selected' : ''}>${meta.label}优先级</option>`).join('');
@@ -4581,6 +4199,10 @@ function taskFormHTML(task) {
           <label for="tk-time">截止时间</label>
           <input class="input" id="tk-time" name="time" type="time" step="300" value="${hm(due)}">
         </div>
+      </div>
+      <div class="field">
+        <label for="tk-est">预估时长（分钟）</label>
+        <input class="input" id="tk-est" name="estMinutes" type="number" min="5" max="480" step="5" value="${clamp(Number(task.estMinutes) || 30, 5, 480)}">
       </div>
       <div class="note-field">
         <label for="tk-note">备注<span>（可选，最多 1500 字）</span></label>
@@ -5009,10 +4631,6 @@ let pendingImportState = null;
 
 function prepareImportJSON(file) {
   if (!file) return;
-  if (!Cloud.user) {
-    toast('请先登录再导入数据', 'error');
-    return;
-  }
   if (file.size > 8 * 1024 * 1024) {
     toast('文件太大，请选择 8 MB 以内的 JSON 备份', 'error');
     return;
@@ -5029,10 +4647,10 @@ function prepareImportJSON(file) {
       pendingImportState = next;
       openConfirm({
         title: '导入并覆盖当前数据？',
-        desc: '导入后当前账号的数据会被备份文件替换，并同步到其他设备。',
+        desc: '导入后本机当前数据会被备份文件替换，此操作无法撤销。',
         message: `备份包含 <strong>${next.tasks.length} 项任务</strong>、<strong>${next.projects.length} 个项目</strong>、<strong>${next.events.length} 条日程</strong>。建议先导出当前数据作为备份。`,
         action: 'import-json-apply',
-        confirmLabel: '导入并同步'
+        confirmLabel: '导入并覆盖'
       });
     } catch (error) {
       toast('JSON 解析失败，请确认文件没有损坏', 'error');
@@ -5058,7 +4676,7 @@ function applyImportedState() {
   closeModal();
   persist();
   renderAll(true);
-  toast('数据已导入，正在同步到云端');
+  toast('数据已导入，已保存到本机');
 }
 
 /* =========================================================
@@ -5156,6 +4774,33 @@ function toggleSubtask(projectId, nodeId) {
   announceProjectStatusChange(beforeStatus, project);
 }
 
+function defaultTaskDueAt(now = new Date()) {
+  const due = addDays(startOfDay(now), 1);
+  due.setHours(now.getHours() >= 18 ? 20 : 18, 0, 0, 0);
+  return due;
+}
+
+function quickTaskDueAt(mode = 'tomorrow', now = new Date()) {
+  const after18 = now.getHours() >= 18;
+  if (mode === 'today') {
+    const due = startOfDay(now);
+    const hour = now.getHours() >= 20 ? 23 : (after18 ? 20 : 18);
+    due.setHours(hour, 0, 0, 0);
+    return due;
+  }
+  if (mode === 'dayAfter') {
+    const due = addDays(startOfDay(now), 2);
+    due.setHours(after18 ? 20 : 18, 0, 0, 0);
+    return due;
+  }
+  if (mode === 'week') {
+    const due = addDays(startOfDay(now), 7);
+    due.setHours(after18 ? 20 : 18, 0, 0, 0);
+    return due;
+  }
+  return defaultTaskDueAt(now);
+}
+
 function addSubtaskToTodo(projectId, nodeId) {
   const project = projectById(projectId);
   const node = project ? findNode(project.subtasks, nodeId) : null;
@@ -5169,9 +4814,7 @@ function addSubtaskToTodo(projectId, nodeId) {
     return;
   }
   const now = new Date();
-  const due = new Date(now);
-  due.setHours(18, 0, 0, 0);
-  if (due <= now) due.setDate(due.getDate() + 1);
+  const due = defaultTaskDueAt(now);
   S.tasks.push({
     id: uid('t'),
     title,
@@ -5248,6 +4891,7 @@ function deleteSubtaskNow(projectId, nodeId) {
   const beforeStatus = projectDisplayStatus(project);
   if (!deleteNode(project.subtasks, nodeId)) return;
   refreshParentStates(project.subtasks);
+  if (!walkLeaves(project.subtasks || []).length) project.progress = 0;
   updateProjectProgress(project);
   persist();
   closeModal();
@@ -5339,11 +4983,12 @@ function applyNoteFormat(format, projectId) {
 function sanitizeNotes(html) {
   const template = document.createElement('template');
   template.innerHTML = String(html || '');
-  template.content.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(node => node.remove());
+  template.content.querySelectorAll('script,style,iframe,object,embed,link,meta,svg,math,form,base,img').forEach(node => node.remove());
   template.content.querySelectorAll('*').forEach(element => {
     Array.from(element.attributes).forEach(attr => {
       const name = attr.name.toLowerCase();
-      if (name.startsWith('on') || (name === 'href' && /^javascript:/i.test(attr.value))) {
+      const val = String(attr.value || '').replace(/[\u0000-\u0020]+/g, '');
+      if (name.startsWith('on') || (['href', 'src', 'xlink:href', 'formaction', 'action'].includes(name) && /^(javascript|vbscript|data):/i.test(val))) {
         element.removeAttribute(attr.name);
       }
     });
@@ -5694,26 +5339,6 @@ function handleAction(action, element) {
       if (qi) qi.focus();
       break;
     }
-    case 'focus-preset': {
-      const mins = Number(element.dataset.min) || 25;
-      FOCUS.running = false;
-      clearInterval(FOCUS.timerId);
-      FOCUS.timerId = null;
-      FOCUS.durationSec = mins * 60;
-      FOCUS.remainingSec = mins * 60;
-      renderAll();
-      break;
-    }
-    case 'focus-toggle':
-      toggleFocusTimer();
-      break;
-    case 'focus-reset':
-      FOCUS.running = false;
-      clearInterval(FOCUS.timerId);
-      FOCUS.timerId = null;
-      FOCUS.remainingSec = FOCUS.durationSec;
-      renderAll();
-      break;
     default:
       break;
   }
@@ -5730,14 +5355,19 @@ function submitQuickAdd(form) {
     return;
   }
   const now = new Date();
-  const due = new Date(now);
-  due.setHours(18, 0, 0, 0);
-  if (due <= now) due.setDate(due.getDate() + 1);
+  const projectSelect = form.querySelector('#quick-project-select');
+  const dueSelect = form.querySelector('#quick-due-select');
+  const chosenProjectId = projectSelect ? projectSelect.value : UI.quickProjectId;
+  const chosenDueMode = dueSelect ? dueSelect.value : UI.quickDueMode;
+  const validProjectId = S.projects.some(p => p.id === chosenProjectId) ? chosenProjectId : '';
+  UI.quickProjectId = validProjectId;
+  UI.quickDueMode = ['tomorrow', 'today', 'dayAfter', 'week'].includes(chosenDueMode) ? chosenDueMode : 'tomorrow';
+  const due = quickTaskDueAt(UI.quickDueMode, now);
   S.tasks.push({
     id: uid('t'),
     title,
-    projectId: '',
-    priority: 'medium',
+    projectId: validProjectId,
+    priority: PRIORITIES[UI.quickPriority] ? UI.quickPriority : 'medium',
     status: 'pending',
     dueAt: due.toISOString(),
     createdAt: now.toISOString(),
@@ -5809,11 +5439,25 @@ function submitTaskForm(form) {
   const due = new Date(`${date}T${time || '18:00'}:00`);
   if (Number.isNaN(due.getTime())) { toast('截止时间格式不正确', 'error'); return; }
   const oldProjectId = task.projectId || '';
+  const oldDueAt = task.dueAt;
+  const oldEst = task.estMinutes || 30;
   const nextProjectId = S.projects.some(project => project.id === projectId) ? projectId : '';
+  const nextEst = clamp(Number(data.get('estMinutes')) || oldEst, 5, 480);
+  if (task.status === 'completed' && task.completedAt) {
+    const completedAt = new Date(task.completedAt);
+    const key = dateISO(completedAt);
+    const wasOnTime = completedAt <= new Date(oldDueAt) ? 1 : 0;
+    const isOnTime = completedAt <= due ? 1 : 0;
+    if (oldProjectId !== nextProjectId || wasOnTime !== isOnTime || oldEst !== nextEst) {
+      adjustLog(key, oldProjectId, -1, -wasOnTime, -oldEst);
+      adjustLog(key, nextProjectId, 1, isOnTime, nextEst);
+    }
+  }
   task.title = title;
   task.projectId = nextProjectId;
   task.priority = PRIORITIES[priority] ? priority : 'medium';
   task.dueAt = due.toISOString();
+  task.estMinutes = nextEst;
   task.note = String(data.get('note') || '').slice(0, 1500);
   /* 任务被移动到另一个具体项目时，一并加入该项目的一级子任务（同名则不重复添加） */
   let movedProject = null;
@@ -6406,6 +6050,14 @@ function onInput(event) {
 }
 
 function onChange(event) {
+  if (event.target && event.target.id === 'quick-project-select') {
+    UI.quickProjectId = event.target.value || '';
+    return;
+  }
+  if (event.target && event.target.id === 'quick-due-select') {
+    UI.quickDueMode = event.target.value || 'tomorrow';
+    return;
+  }
   const fileInput = event.target.id === 'import-json-input' ? event.target : null;
   if (fileInput) {
     const file = fileInput.files && fileInput.files[0];
@@ -6530,6 +6182,7 @@ function normalizeState(raw) {
 }
 
 async function boot() {
+  /* 启动时先以访客分区读取本地数据，登录成功后再切换到该账号的独立分区 */
   let normalized = null;
   try {
     const raw = await Store.load();
@@ -6551,6 +6204,8 @@ async function boot() {
     setTimeout(() => bootScreen.remove(), 380);
   }
 
+
+  /* 初始化 Supabase 客户端与登录界面，再根据会话决定进入工作台还是显示登录页 */
   if (!initCloudAuth()) {
     showAuthScreen('云同步组件加载失败，请检查网络后刷新页面。', 'error');
     return;
@@ -6612,6 +6267,7 @@ document.addEventListener('visibilitychange', () => {
   if (Cloud.dirty) void cloudSync();
   else void pullCloud();
 });
+/* 兜底轮询：可见且在线时每 45 秒对齐一次云端 */
 setInterval(() => {
   if (document.hidden || !Cloud.user || !Cloud.ready || !navigator.onLine) return;
   if (Cloud.dirty) void cloudSync();
