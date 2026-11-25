@@ -1,9 +1,18 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Workbench 个人工作台 — Local-First 的极简任务与项目控制面板">
+<meta name="theme-color" content="#ffffff" id="meta-theme-color">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="工作台">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="./icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
 <title>工作台</title>
 <style>
 /* =========================================================
@@ -1677,6 +1686,270 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   .auth-tabs{margin-top:18px;}
 }
 
+/* ---------- Mobile Redesign & PWA (Desktop >760px untouched) ---------- */
+.mobile-tabbar,
+.topbar-mobile-date,
+.topbar-search-btn,
+.topbar-avatar-btn,
+.mobile-schedule-btn,
+.completed-collapse-btn{display:none;}
+
+.pwa-status-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 10px;border-radius:999px;
+  font-size:11px;font-weight:650;
+  background:var(--panel-2);color:var(--text-2);border:1px solid var(--border);
+}
+.pwa-status-badge.installed{background:var(--green-soft);color:var(--green);border-color:transparent;}
+.pwa-status-badge.ready{background:var(--accent-soft);color:var(--accent-text);border-color:transparent;}
+.pwa-guide-steps{
+  margin-top:8px;padding:10px 12px;border-radius:12px;
+  background:var(--panel-2);border:1px solid var(--border);
+  font-size:11.5px;line-height:1.65;color:var(--text-2);
+}
+.pwa-guide-steps b{color:var(--text);}
+
+@keyframes sheetUp{
+  from{opacity:.4;transform:translateY(36px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+@media (max-width:760px){
+  /* 1. 隐藏左侧窄侧边栏，释放 100% 横向屏幕宽度 */
+  .sidebar{display:none !important;}
+  .app{flex-direction:column;}
+  .main{width:100%;height:100vh;height:100svh;}
+
+  /* 2. 顶部单行毛玻璃导航栏 */
+  .topbar{
+    height:auto;
+    min-height:56px;
+    padding:calc(8px + env(safe-area-inset-top,0px)) 14px 9px;
+    gap:10px;
+    background:color-mix(in srgb,var(--bg) 86%,transparent);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+    position:relative;
+    z-index:35;
+  }
+  .topbar-title{font-size:19px;font-weight:740;letter-spacing:-.025em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .topbar-sub{display:none !important;}
+  .topbar-mobile-date{display:block;font-size:11px;color:var(--text-3);margin-top:2px;font-weight:500;}
+  .topbar-actions{display:flex;align-items:center;flex-wrap:nowrap;gap:6px;flex-shrink:0;}
+  .topbar .mobile-settings-btn{display:none !important;}
+  .topbar-search-btn{display:grid;width:36px;height:36px;border-radius:11px;}
+  .topbar .icon-btn{width:36px;height:36px;border-radius:11px;}
+  .sync-chip{width:36px;height:36px;border-radius:11px;padding:0;justify-content:center;gap:0;}
+  .sync-chip .sync-label{display:none;}
+  .sync-chip svg{display:none;}
+  .topbar-avatar-btn{
+    display:grid;place-items:center;
+    width:36px;height:36px;border-radius:11px;
+    background:var(--panel);border:1px solid var(--border);
+    box-shadow:var(--shadow-sm);padding:3px;flex-shrink:0;
+    transition:border-color .18s,box-shadow .18s;
+  }
+  .topbar-avatar-btn.active{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .topbar-avatar-btn .user-avatar{width:28px;height:28px;font-size:11px;}
+
+  /* 3. 内容滚动区为底部 Tab Bar 预留安全留白 */
+  .content{
+    padding:8px 14px calc(88px + env(safe-area-inset-bottom,0px));
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* 4. 固定底部 4 Tab 导航栏 */
+  .mobile-tabbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:45;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
+    padding:6px 10px calc(8px + env(safe-area-inset-bottom,0px));
+    background:color-mix(in srgb,var(--panel) 90%,transparent);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border-top:1px solid var(--border);
+    box-shadow:0 -8px 28px -12px rgba(15,23,42,.18);
+  }
+  .mnav-btn{
+    position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    min-height:48px;padding:4px 2px;border-radius:14px;
+    color:var(--text-3);font-size:10.5px;font-weight:560;
+    transition:background .16s,color .16s,transform .12s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .mnav-btn:active{transform:scale(.95);}
+  .mnav-btn.active{color:var(--accent-text);background:var(--accent-soft);font-weight:680;}
+  .mnav-ico{position:relative;display:grid;place-items:center;width:24px;height:22px;}
+  .mnav-ico svg{width:19px;height:19px;stroke-width:1.9;}
+  .mnav-badge{
+    position:absolute;top:-4px;right:-11px;
+    min-width:16px;height:16px;padding:0 4px;border-radius:999px;
+    background:var(--accent);color:#fff;
+    font-size:9.5px;font-weight:700;line-height:16px;text-align:center;
+    font-variant-numeric:tabular-nums;
+    border:1.5px solid var(--panel);
+  }
+  .mnav-btn:not(.active) .mnav-badge{background:var(--panel-3);color:var(--text-2);}
+
+  /* 5. 概览页首屏重构：去掉重复问候与冗余快捷行，待办立即进入首屏核心区 */
+  .hero-stage{margin:2px auto 12px;text-align:left;}
+  .hero-greeting{display:none;}
+  .hero-suggestions{display:none;}
+  .hero-pill-form{
+    height:auto;min-height:48px;border-radius:16px;
+    padding:7px 8px 7px 12px;gap:8px;flex-wrap:wrap;
+    box-shadow:var(--shadow-sm);
+  }
+  .hero-pill-form input{font-size:16px;min-width:0;height:34px;flex:1 1 180px;}
+  .hero-pill-controls{width:auto;margin-left:auto;gap:6px;flex-wrap:nowrap;}
+  .hero-pill-form:not(:focus-within):not(.has-text) .hero-meta-select,
+  .hero-pill-form:not(:focus-within):not(.has-text) .hero-prio-btn{display:none;}
+  .hero-pill-form:focus-within .hero-pill-controls,
+  .hero-pill-form.has-text .hero-pill-controls{width:100%;justify-content:flex-end;padding-top:4px;border-top:1px solid var(--border);}
+  .hero-meta-select{height:32px;font-size:12px;max-width:130px;}
+  .hero-prio-btn{height:32px;padding:0 11px;font-size:12px;}
+  .hero-submit-btn{width:34px;height:34px;}
+
+  .hero-controls{
+    justify-content:flex-start;margin-top:10px;
+    overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;
+    margin-left:-14px;margin-right:-14px;padding:0 14px;
+  }
+  .hero-controls::-webkit-scrollbar{display:none;}
+  .filter-pills{flex-shrink:0;padding:3px;}
+  .filter-pill{height:31px;padding:0 12px;font-size:12px;white-space:nowrap;}
+
+  .card{border-radius:18px;}
+  .card-pad{padding:16px 14px;}
+  .card-head{margin-bottom:12px;}
+  .card-title{font-size:15.5px;}
+  .overview-top{gap:12px;margin-bottom:12px;}
+  .task-row{padding:12px 8px;gap:10px;border-radius:12px;}
+  .task-main{gap:12px;flex:1;}
+  .check{position:relative;width:22px;height:22px;margin-top:1px;}
+  .check::after{content:'';position:absolute;inset:-9px;}
+  .task-title{font-size:14px;line-height:1.45;}
+  .task-meta{gap:6px;margin-top:5px;font-size:11.5px;}
+  .kebab{width:34px;height:34px;opacity:1;}
+
+  /* 本周完成移动端默认紧凑可折叠 */
+  .completed-collapse-btn{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:4px 9px;border-radius:999px;
+    font-size:11px;font-weight:600;color:var(--text-2);
+    background:var(--panel-2);border:1px solid var(--border);
+  }
+  .completed-collapse-btn svg{width:13px;height:13px;transition:transform .2s;}
+  .completed-card.is-collapsed .completed-note,
+  .completed-card.is-collapsed .completed-list{display:none;}
+  .completed-card.is-collapsed .completed-headline{margin-top:2px;}
+  .completed-card:not(.is-collapsed) .completed-collapse-btn svg{transform:rotate(180deg);}
+  .big-number{font-size:32px;}
+
+  .project-strip{gap:10px;padding-bottom:6px;margin-bottom:-6px;}
+  .project-strip .project-mini{flex:0 0 78vw;max-width:300px;padding:15px;}
+
+  /* 6. 项目页移动端卡片化 + 触屏友好子任务 */
+  .view-toolbar{margin-bottom:14px;gap:10px;align-items:center;}
+  .view-title{font-size:19px;}
+  .view-desc{display:none;}
+  .view-toolbar-right{width:100%;justify-content:space-between;gap:8px;flex-wrap:nowrap;}
+  .group-summary{flex:1;min-width:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+  .group-summary::-webkit-scrollbar{display:none;}
+  .summary-chip{flex-shrink:0;}
+  .pgroup-empty{gap:10px;}
+  .pgroup-empty button{white-space:nowrap;flex-shrink:0;}
+  .prow{
+    display:grid;
+    grid-template-columns:auto 1fr auto auto;
+    grid-template-areas:
+      "info info menu chev"
+      "prio due due due"
+      "prog prog prog prog";
+    gap:8px 10px;
+    padding:14px;
+    align-items:center;
+  }
+  .prow .pinfo{grid-area:info;min-width:0;}
+  .prow .pmenu-wrap{grid-area:menu;order:unset;}
+  .prow .pchevron{grid-area:chev;order:unset;}
+  .prow .prio{grid-area:prio;width:auto;padding:2px 8px;}
+  .prow .pdeadline{grid-area:due;order:unset;justify-self:end;font-size:11px;}
+  .prow .pprogress{grid-area:prog;order:unset;width:100%;}
+  .pname{font-size:14px;}
+  .pdesc{font-size:11.5px;}
+  .project-detail{padding:14px;gap:16px;}
+  .sub-grip{display:none !important;}
+  .sub-row{padding-left:calc(var(--depth,0) * 12px) !important;min-height:38px;gap:8px;}
+  .sub-note{padding-left:calc(28px + var(--depth,0) * 12px) !important;font-size:11.5px;}
+  .sub-input-row{padding-left:calc(12px + var(--depth,0) * 12px) !important;}
+  .sub-check{width:20px;height:20px;}
+  .sub-title{font-size:13.5px;}
+  .icon-mini{width:30px;height:30px;}
+  .sub-actions{gap:2px;opacity:1;}
+
+  /* 7. 日程页移动端：紧凑双行工具栏 + 单列周视图 + 待排期任务一键排期 */
+  .cal-toolbar{flex-direction:column;align-items:stretch;gap:10px;padding:12px 14px;}
+  .cal-left{justify-content:space-between;width:100%;}
+  .cal-title{flex:1;text-align:center;min-width:0;font-size:13px;}
+  .cal-right{justify-content:space-between;width:100%;gap:8px;}
+  .cal-right .segmented{flex:1;display:grid;grid-template-columns:repeat(3,1fr);}
+  .cal-right .seg-btn{text-align:center;padding:0 6px;}
+  .day-head{padding:10px 14px;font-size:11.5px;}
+  .day-scroll{max-height:56svh;}
+  .week-grid{grid-template-columns:1fr;gap:8px;padding:12px;}
+  .week-col{min-height:auto;padding:10px 12px;}
+  .week-head{display:flex;align-items:center;justify-content:space-between;text-align:left;padding:4px 6px;margin-bottom:6px;}
+  .week-date{font-size:16px;}
+  .schedule-side .side-hint,
+  .schedule-side .side-tip{display:none;}
+  .drag-task{cursor:default;align-items:center;padding:11px 12px;}
+  .drag-task .grip{display:none;}
+  .mobile-schedule-btn{display:inline-flex;flex-shrink:0;height:32px;padding:0 10px;font-size:11.5px;}
+
+  /* 8. 数据分析页：KPI 2列并排，图表触屏优化 */
+  .stats-row{grid-template-columns:1fr 1fr !important;gap:10px;margin-bottom:12px;}
+  .stat-card{padding:14px;}
+  .stat-value{font-size:28px;margin-top:6px;}
+  .stat-foot{font-size:10.5px;flex-wrap:wrap;}
+  .chart-card,.donut-card,.ontime-card{padding:15px 14px;margin-bottom:12px;}
+  .chart-head{flex-wrap:wrap;gap:8px;}
+  .donut-body,.ontime-body{flex-direction:column;align-items:center;gap:16px;}
+  .legend-list,.ontime-stats{width:100%;}
+
+  /* 9. 设置页：3列主题切换 + 隐藏桌面快捷键卡片 */
+  .theme-grid{grid-template-columns:repeat(3,1fr) !important;gap:8px;padding:0 14px 14px;}
+  .theme-tile{flex-direction:column;text-align:center;padding:12px 6px;gap:6px;}
+  .theme-desc{display:none;}
+  .settings-shortcuts-card{display:none;}
+  .settings-row{padding:14px;}
+  .settings-head{padding:15px 14px 10px;}
+
+  /* 10. 弹窗升级为原生底部抽屉 Bottom Sheet + 防 iOS 自动缩放 */
+  .modal-backdrop{align-items:flex-end;padding:0;}
+  .modal,.search-modal{
+    width:100%;max-width:100%;max-height:88svh;
+    border-radius:22px 22px 0 0;margin:0;
+    display:flex;flex-direction:column;
+    animation:sheetUp .24s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .modal::before,.search-modal::before{
+    content:'';display:block;width:36px;height:4px;
+    border-radius:999px;background:var(--border-strong);
+    margin:9px auto 0;flex-shrink:0;
+  }
+  .modal-head{padding:12px 16px 0;flex-shrink:0;}
+  .modal-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));}
+  .search-results{max-height:60svh;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));}
+  .input,.select,.textarea,.search-input-bar input{font-size:16px;}
+  .modal-foot{padding-top:10px;}
+
+  /* Toast 悬浮在底部导航栏上方 */
+  .toasts{right:14px;left:14px;bottom:calc(74px + env(safe-area-inset-bottom,0px));align-items:stretch;}
+  .bell-pop{width:min(320px,calc(100vw - 28px));right:-42px;}
+}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}
 }
@@ -1752,6 +2025,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.5" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="5" width="3.5" height="14" rx="1" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
   <symbol id="i-note" viewBox="0 0 24 24"><path d="M6 3.5h8.5L19 8v12.5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-16a1 1 0 0 1 1-1Z"/><path d="M14 3.5V8h4.5"/><path d="M8.5 12h7M8.5 15.5h7M8.5 19h4"/></symbol>
+  <symbol id="i-smartphone" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18h3"/></symbol>
 </svg>
 
 <div class="app" id="app">
@@ -1762,6 +2036,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
       <div class="view" id="view"></div>
     </div>
   </main>
+  <nav class="mobile-tabbar" id="mobile-tabbar" aria-label="移动端主导航"></nav>
 </div>
 
 <div id="popover-root"></div>
@@ -2687,6 +2962,7 @@ const UI = {
   scheduleDate: todayISO(),
   expanded: new Set(),
   completedGroupOpen: false, // 「已完成」类目默认折叠
+  mobileCompletedOpen: false, // 移动端「本周完成」默认折叠以保持首屏紧凑
   addingSubtask: null,   // { projectId, parentId }
   editingSubtask: null,  // { projectId, nodeId } 原位编辑子任务标题
   modal: null,           // { type, data }
@@ -2699,6 +2975,19 @@ const UI = {
   quickPriority: 'medium',
   quickDueMode: 'tomorrow',
   searchQuery: ''
+};
+
+const PWA = {
+  deferredPrompt: null,
+  installed: false,
+  swReady: false,
+  isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent || '') ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+  isStandalone() {
+    return this.installed ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+      window.navigator.standalone === true;
+  }
 };
 
 
@@ -2886,7 +3175,10 @@ function preferredTheme() {
   return setting;
 }
 function applyTheme() {
-  document.documentElement.dataset.theme = preferredTheme();
+  const theme = preferredTheme();
+  document.documentElement.dataset.theme = theme;
+  const meta = document.getElementById('meta-theme-color');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b1120' : '#ffffff');
 }
 
 /* =========================================================
@@ -3033,6 +3325,28 @@ function renderSidebar() {
     </div>`;
 }
 
+function renderMobileTabbar() {
+  const bar = $('#mobile-tabbar');
+  if (!bar) return;
+  const pendingCount = S.tasks.filter(t => t.status === 'pending').length;
+  const ongoingCount = projectsWithStatus('ongoing').length;
+  const eventCount = todayEvents().length;
+  const items = [
+    { id: 'overview', label: '概览', ico: 'grid', badge: pendingCount },
+    { id: 'projects', label: '项目', ico: 'folder', badge: ongoingCount },
+    { id: 'schedule', label: '日程', ico: 'calendar', badge: eventCount },
+    { id: 'data', label: '统计', ico: 'chart', badge: 0 }
+  ];
+  bar.innerHTML = items.map(item => `
+    <button type="button" class="mnav-btn ${UI.activeTab === item.id ? 'active' : ''}" data-nav="${item.id}" aria-label="${item.label}" aria-current="${UI.activeTab === item.id ? 'page' : 'false'}">
+      <span class="mnav-ico">
+        ${icon(item.ico)}
+        ${item.badge ? `<span class="mnav-badge">${item.badge > 99 ? '99+' : item.badge}</span>` : ''}
+      </span>
+      <span>${item.label}</span>
+    </button>`).join('');
+}
+
 function topbarCopy() {
   const pending = S.tasks.filter(t => t.status === 'pending');
   const overdue = pending.filter(t => new Date(t.dueAt) < new Date()).length;
@@ -3091,19 +3405,23 @@ function renderTopbar() {
     .filter(task => new Date(task.dueAt) < new Date() && !dismissed.has(task.id))
     .slice(0, 3);
   const hasAlert = !!(S.settings.notifications && (todayEventsList.length || overdueTasks.length));
+  const email = Cloud.user?.email || '未登录';
+  const initial = email.slice(0, 1).toUpperCase();
+  const nowDate = new Date();
   $('#topbar').innerHTML = `
     <div style="min-width:0">
       <h1 class="topbar-title">${escapeHTML(copy.title)}</h1>
       <p class="topbar-sub">${escapeHTML(copy.sub)}</p>
+      ${UI.activeTab === 'overview' ? `<p class="topbar-mobile-date">${monthDay(nowDate)} · ${weekdayCN[nowDate.getDay()]}</p>` : ''}
     </div>
     <div class="topbar-actions">
-      <div class="date-chip">${icon('calendar')}${fmtLongDate(new Date())}</div>
+      <div class="date-chip">${icon('calendar')}${fmtLongDate(nowDate)}</div>
       ${syncChipHTML()}
+      <button type="button" class="icon-btn topbar-search-btn" data-action="open-search" title="全局搜索" aria-label="全局搜索">${icon('search')}</button>
       <div class="bell-wrap">
         <button class="icon-btn" data-action="toggle-bell" title="今日提醒" aria-label="今日提醒">
           ${icon('bell')}${hasAlert ? '<span class="bell-dot"></span>' : ''}
         </button>
-        <button class="icon-btn mobile-settings-btn" data-action="open-settings" title="设置" aria-label="打开设置">${icon('settings')}</button>
         ${UI.bellOpen ? `
           <div class="bell-pop">
             <div class="pop-head">
@@ -3142,6 +3460,9 @@ function renderTopbar() {
               ` : `<div class="pop-empty">今天没有待提醒的安排，<br>享受一段不被打扰的时间。</div>`}
           </div>` : ''}
       </div>
+      <button type="button" class="topbar-avatar-btn ${UI.activeTab === 'settings' ? 'active' : ''}" data-nav="settings" title="设置与账户" aria-label="设置与账户">
+        <span class="user-avatar">${escapeHTML(initial)}</span>
+      </button>
     </div>`;
 }
 
@@ -3213,10 +3534,15 @@ function renderOverview() {
         </div>
       </section>
 
-      <section class="card card-pad completed-card">
+      <section class="card card-pad completed-card ${UI.mobileCompletedOpen ? '' : 'is-collapsed'}">
         <div class="card-head" style="margin-bottom:12px">
           <h2 class="card-title">本周完成</h2>
-          <span class="section-sub">周一开始统计</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="section-sub">周一开始统计</span>
+            <button type="button" class="completed-collapse-btn" data-action="toggle-mobile-completed" aria-expanded="${UI.mobileCompletedOpen}">
+              <span>${UI.mobileCompletedOpen ? '收起' : '展开'}</span>${icon('chevron-down')}
+            </button>
+          </div>
         </div>
         <div class="completed-headline">
           <span class="big-number">${done.length}</span>
@@ -3256,7 +3582,7 @@ function renderOverview() {
    ========================================================= */
 function renderSubtaskInput(projectId, parentId, depth) {
   return `
-    <div class="sub-input-row" style="padding-left:${20 + depth * 18}px">
+    <div class="sub-input-row" style="--depth:${Math.min(depth, 4)};padding-left:${20 + depth * 18}px">
       <input class="sub-input" data-project="${projectId}" data-parent="${parentId}"
         maxlength="100" placeholder="输入子任务，Enter 保存，Esc 取消"
         aria-label="新子任务名称">
@@ -3270,9 +3596,10 @@ function renderSubtree(nodes, projectId, depth) {
     const editingHere = UI.editingSubtask && UI.editingSubtask.projectId === projectId && UI.editingSubtask.nodeId === node.id;
     const inTodo = S.tasks.some(task => task.status === 'pending' && task.projectId === projectId && task.title.trim() === node.title.trim());
     const note = String(node.note || '').trim();
+    const clampedDepth = Math.min(depth, 4);
     return `
       <div class="sub-node" data-node-id="${node.id}" data-project="${projectId}">
-        <div class="sub-row ${node.done ? 'done' : ''}" style="padding-left:${depth * 18}px">
+        <div class="sub-row ${node.done ? 'done' : ''}" style="--depth:${clampedDepth};padding-left:${depth * 18}px">
           <button class="sub-grip" draggable="true" data-drag-project="${projectId}" data-drag-id="${node.id}"
             title="拖拽排序" aria-label="拖拽排序：${escapeHTML(node.title)}">${icon('grip')}</button>
           <button class="sub-check" data-action="toggle-subtask" data-project="${projectId}" data-id="${node.id}"
@@ -3292,7 +3619,7 @@ function renderSubtree(nodes, projectId, depth) {
           </span>
         </div>
         ${note ? `<div class="sub-note" data-action="subtask-note" data-project="${projectId}" data-id="${node.id}"
-          style="padding-left:${42 + depth * 18}px" title="${escapeHTML(note)}">${escapeHTML(note)}</div>` : ''}
+          style="--depth:${clampedDepth};padding-left:${42 + depth * 18}px" title="${escapeHTML(note)}">${escapeHTML(note)}</div>` : ''}
         ${addingHere ? renderSubtaskInput(projectId, node.id, depth + 1) : ''}
         ${hasChildren ? `<div class="subtree">${renderSubtree(node.children, projectId, depth + 1)}</div>` : ''}
       </div>`;
@@ -3649,6 +3976,7 @@ function renderScheduleSide() {
                     <span class="pill">${task.estMinutes || 60} 分钟</span>
                   </div>
                 </div>
+                <button type="button" class="btn btn-soft btn-sm mobile-schedule-btn" data-action="quick-schedule-task" data-id="${task.id}" aria-label="排期：${escapeHTML(task.title)}">${icon('calendar-plus')} 排期</button>
               </div>`;
           }).join('') : `
             <div class="side-empty">${icon('check-circle')}<span>所有待办都已排期<br>或已经完成。</span></div>`}
@@ -4008,6 +4336,34 @@ function renderSettings() {
 
       <section class="card settings-card">
         <div class="settings-head">
+          <h3>安装到主屏幕（PWA）</h3>
+          <p>将工作台安装为独立应用，像原生 App 一样从桌面快捷方式全屏启动，并支持离线打开。</p>
+        </div>
+        <div class="settings-row">
+          <div>
+            <h4>应用安装状态</h4>
+            <div style="margin-top:6px">
+              ${PWA.isStandalone()
+                ? `<span class="pwa-status-badge installed">${icon('check-circle')} 已安装并以独立应用运行</span>`
+                : PWA.deferredPrompt
+                  ? `<span class="pwa-status-badge ready">${icon('smartphone')} 已就绪 · 支持一键安装</span>`
+                  : `<span class="pwa-status-badge">${icon('smartphone')} 浏览器运行中</span>`}
+            </div>
+            ${!PWA.isStandalone() && !PWA.deferredPrompt ? (
+              PWA.isIOS
+                ? `<div class="pwa-guide-steps">在 Safari 底部点击 <b>分享图标</b> → 选择 <b>「添加到主屏幕」</b>，即可创建桌面图标并全屏运行。</div>`
+                : `<div class="pwa-guide-steps">点击浏览器右上角菜单 <b>「⋮」</b> → 选择 <b>「安装应用」</b> 或 <b>「添加到主屏幕」</b> 即可安装。</div>`
+            ) : ''}
+          </div>
+          ${!PWA.isStandalone() && PWA.deferredPrompt ? `
+            <div class="settings-actions">
+              <button type="button" class="btn btn-primary btn-sm" data-action="install-pwa">${icon('download')} 安装到桌面</button>
+            </div>` : ''}
+        </div>
+      </section>
+
+      <section class="card settings-card settings-shortcuts-card">
+        <div class="settings-head">
           <h3>快捷键</h3>
           <p>减少鼠标移动，让操作更顺手。</p>
         </div>
@@ -4024,9 +4380,9 @@ function renderSettings() {
         <div class="about-logo">${icon('layers')}</div>
         <div class="about-text">
           <strong>Workbench · 个人工作台</strong>
-          <span>Local-first · 单文件应用 · 多端云同步</span>
+          <span>Local-first · PWA 移动端适配 · 多端云同步</span>
         </div>
-        <span class="about-version">v1.8</span>
+        <span class="about-version">v1.9</span>
       </section>
     </div>`;
 }
@@ -4125,6 +4481,7 @@ function eventFormHTML(event) {
   return `
     <form class="form-grid" data-form="event" novalidate>
       <input type="hidden" name="id" value="${event.id || ''}">
+      <input type="hidden" name="taskId" value="${event.taskId || ''}">
       <div class="field">
         <label for="ev-title">日程标题<span>*</span></label>
         <input class="input" id="ev-title" name="title" maxlength="80" required value="${escapeHTML(event.title || '')}" placeholder="例如：迭代评审会">
@@ -4465,6 +4822,7 @@ function renderAll(resetScroll = false) {
   const prevDayState = prevDayScroll ? { top: prevDayScroll.scrollTop, key: UI._lastDayKey } : null;
 
   renderSidebar();
+  renderMobileTabbar();
   renderTopbar();
   const viewEl = $('#view');
   viewEl.classList.toggle('animate-bars', !!resetScroll);
@@ -4507,6 +4865,7 @@ function updateProjectInPlace(projectId) {
   UI.justExpandedProjectId = null;
   /* 侧边栏「进行中项目」百分比与顶部铃铛随进度同步 */
   renderSidebar();
+  renderMobileTabbar();
   renderTopbar();
   afterRender();
 }
@@ -5228,6 +5587,48 @@ function handleAction(action, element) {
     case 'new-event-date':
       openNewEvent(element.dataset.date || UI.scheduleDate);
       break;
+    case 'toggle-mobile-completed':
+      UI.mobileCompletedOpen = !UI.mobileCompletedOpen;
+      renderAll();
+      break;
+    case 'quick-schedule-task': {
+      const task = taskById(id);
+      if (!task) break;
+      const date = UI.scheduleDate || todayISO();
+      const base = date === todayISO() ? defaultEventTimes() : { start: '10:00', end: '11:00' };
+      const startM = minutesOf(base.start);
+      const dur = clamp(Number(task.estMinutes) || 60, 15, 240);
+      const endM = Math.min(20 * 60, startM + dur);
+      const fmtHM = m => `${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`;
+      openModal('event', {
+        title: task.title,
+        date,
+        start: fmtHM(startM),
+        end: fmtHM(Math.max(startM + 15, endM)),
+        type: 'focus',
+        projectId: task.projectId || '',
+        taskId: task.id,
+        location: ''
+      });
+      break;
+    }
+    case 'install-pwa': {
+      if (!PWA.deferredPrompt) {
+        toast('请点击浏览器菜单中的「安装应用」或「添加到主屏幕」', 'info');
+        break;
+      }
+      const promptEvt = PWA.deferredPrompt;
+      PWA.deferredPrompt = null;
+      promptEvt.prompt();
+      promptEvt.userChoice.then(choice => {
+        if (choice && choice.outcome === 'accepted') {
+          PWA.installed = true;
+          toast('正在安装工作台到桌面…');
+        }
+        renderAll();
+      }).catch(() => renderAll());
+      break;
+    }
     case 'delete-event': {
       const event = S.events.find(item => item.id === id);
       if (!event) break;
@@ -5381,6 +5782,7 @@ function submitQuickAdd(form) {
 function submitEventForm(form) {
   const data = new FormData(form);
   const id = String(data.get('id') || '');
+  const taskId = String(data.get('taskId') || '').trim();
   const title = String(data.get('title') || '').trim();
   const date = String(data.get('date') || '');
   const start = String(data.get('start') || '');
@@ -5413,6 +5815,7 @@ function submitEventForm(form) {
     projectId: S.projects.some(project => project.id === projectId) ? projectId : '',
     location
   };
+  if (taskId && S.tasks.some(task => task.id === taskId)) payload.taskId = taskId;
   if (existing) Object.assign(existing, payload);
   else S.events.push({ id: uid('e'), ...payload });
   UI.scheduleDate = date;
@@ -5625,6 +6028,8 @@ function initChart() {
     const index = Number(hit.dataset.i);
     hit.addEventListener('mouseenter', () => show(index));
     hit.addEventListener('mousemove', () => show(index));
+    hit.addEventListener('pointerdown', () => show(index));
+    hit.addEventListener('click', () => show(index));
   });
   wrap.addEventListener('mouseleave', hide);
 }
@@ -6027,6 +6432,11 @@ function onKeyDown(event) {
 }
 
 function onInput(event) {
+  if (event.target && event.target.id === 'quick-add-input') {
+    const form = event.target.closest('#quick-add-form');
+    if (form) form.classList.toggle('has-text', event.target.value.trim().length > 0);
+    return;
+  }
   if (event.target && event.target.id === 'global-search-input') {
     UI.searchQuery = event.target.value;
     const box = $('#global-search-results');
@@ -6266,6 +6676,30 @@ setInterval(() => {
   if (Cloud.dirty) void cloudSync();
   else void pullCloud();
 }, 45000);
+
+/* PWA：支持快捷方式 Hash 路由、安装事件捕获与 Service Worker 注册 */
+const initialHashTab = (location.hash || '').replace(/^#/, '');
+if (['overview', 'projects', 'schedule', 'data', 'settings'].includes(initialHashTab)) {
+  UI.activeTab = initialHashTab;
+}
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault();
+  PWA.deferredPrompt = event;
+  if (UI.activeTab === 'settings') renderAll();
+});
+window.addEventListener('appinstalled', () => {
+  PWA.installed = true;
+  PWA.deferredPrompt = null;
+  toast('工作台已安装到桌面');
+  if (UI.activeTab === 'settings') renderAll();
+});
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then(() => { PWA.swReady = true; })
+      .catch(() => {});
+  });
+}
 
 boot();
 })();
